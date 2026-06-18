@@ -1,0 +1,126 @@
+[project]
+name = "epguides-renamer"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = ["rapidfuzz>=3.14.5"]
+
+[tool.ruff]
+# Exclude a variety of commonly ignored directories.
+exclude = [
+  ".bzr",
+  ".direnv",
+  ".eggs",
+  ".git",
+  ".git-rewrite",
+  ".hg",
+  ".ipynb_checkpoints",
+  ".mypy_cache",
+  ".nox",
+  ".pants.d",
+  ".pyenv",
+  ".pytest_cache",
+  ".pytype",
+  ".ruff_cache",
+  ".svn",
+  ".tox",
+  ".venv",
+  ".vscode",
+  "__pypackages__",
+  "_build",
+  "buck-out",
+  "build",
+  "dist",
+  "node_modules",
+  "site-packages",
+  "venv",
+]
+# Same as Black.
+line-length = 120
+indent-width = 4
+# Assume Python 3.14
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["D100", "D101", "D102", "D103", "E4", "E7", "E9", "F", "E501"]
+ignore = ["F401"]
+fixable = ["ALL"]
+unfixable = []
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+docstring-code-format = true
+docstring-code-line-length = 72
+
+[tool.mypy]
+# -- Python version (match your ruff target-version) --
+python_version = "3.14"
+
+# -- Paths --
+# Mirrors ruff's exclude list for consistency
+exclude = [
+  ".bzr",
+  ".direnv",
+  ".eggs",
+  ".git",
+  ".git-rewrite",
+  ".hg",
+  ".ipynb_checkpoints",
+  ".mypy_cache",
+  ".nox",
+  ".pants.d",
+  ".pyenv",
+  ".pytest_cache",
+  ".pytype",
+  ".ruff_cache",
+  ".svn",
+  ".tox",
+  ".venv",
+  ".vscode",
+  "__pypackages__",
+  "_build",
+  "buck-out",
+  "build",
+  "dist",
+  "node_modules",
+  "site-packages",
+  "venv",
+]
+
+# -- Import handling --
+ignore_missing_imports = true   # don't error on untyped third-party libs
+follow_imports = "normal"       # follow and check imported modules
+follow_imports_for_stubs = true
+
+# -- Incremental / caching (speeds up repeated runs) --
+incremental = true
+cache_dir = ".mypy_cache"
+
+# -- Error output --
+show_error_codes = true    # e.g. [arg-type], [return-value]
+show_column_numbers = true
+pretty = true              # human-friendly output in terminal
+
+# -- Strictness (start moderate, tighten over time) --
+disallow_untyped_defs = true        # all functions must have type annotations
+disallow_incomplete_defs = true     # no partially annotated functions
+check_untyped_defs = true           # type-check bodies of unannotated functions
+disallow_untyped_decorators = false # decorators often lack stubs, keep off
+warn_return_any = true              # flag functions that return Any
+warn_unused_ignores = true          # flag unnecessary `# type: ignore` comments
+warn_redundant_casts = true         # flag pointless cast() calls
+warn_unused_configs = true          # catch typos in this config
+
+# -- Strictness flags OFF by default (enable when ready) --
+# strict = true                     # enables all of the below at once
+# disallow_any_generics = true
+# disallow_subclassing_any = true
+# disallow_untyped_calls = true
+# no_implicit_reexport = true
+# strict_equality = true

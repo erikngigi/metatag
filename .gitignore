@@ -1,0 +1,37 @@
+# ==========================================
+# Core Project Overrides (Based on your directory)
+# ==========================================
+# Virtual Environment managed by uv
+.venv/
+
+# Environment configurations (Contains sensitive keys/credentials)
+.env
+.env.*
+!.env.example
+
+# ==========================================
+# Python Build, Cache, and Runtime Artifacts
+# ==========================================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# ==========================================
+# Type Checking and Linting Caches
+# ==========================================
+.mypy_cache/
+.pyre/
+.physa/
+.ruff_cache/
+
+# ==========================================
+# IDEs and System Specific Files
+# ==========================================
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

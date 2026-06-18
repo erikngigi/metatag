@@ -1,0 +1,5 @@
+blessed==1.44.0
+jinxed==2.0.4
+pick==2.6.0
+pip==26.1.2
+wcwidth==0.8.1
