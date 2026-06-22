@@ -1,59 +1,65 @@
-import argparse
+"""Application Bootstrapper and Router.
+
+Acts as the root orchestrator of the metatag application. Parses terminal
+flags and conditionally hands off execution to the appropriate controller layer.
+"""
+
+from __future__ import annotations
+
 import sys
-from pathlib import Path
-from typing import Any
 
-# Set up main parser
-parser = argparse.ArgumentParser(description="TV Show File Scanner and Renamer.")
+from metatag.cli import parse_arguments
+from metatag.controllers.api_presenter import APIMetadataController
+from metatag.controllers.directory_selector import DirectoryController
+from metatag.views.interactive import InteractiveWizard
 
-# Argument 1: The target directory (Stores a string in 'target_dir')
-# parser.add_argument("-d", "--dir", dest="target_dir", required=True, help="The target directory to scan.")
-parser.add_argument("target_dir", help="The target directory to scan.")
 
-# Depth options (mutually exclusive)
-depth_group = parser.add_mutually_exclusive_group()
-depth_group.add_argument(
-    "-r", "--recursive", action="store_true", default="/storage/Tv-Shows", dest="recursive", help="Scan recursively."
-)
-depth_group.add_argument("-nr", "--non-recursive", action="store_true", dest="nr_recursive", help="Scan top-level.")
+def main() -> None:
+    """Orchestrates system startup and conditional flag routing."""
+    # 1. Parse incoming terminal flags via argparse
+    args = parse_arguments()
 
-# Filter options (mutually exclusive)
-filter_group = parser.add_mutually_exclusive_group()
-filter_group.add_argument("--videos-only", action="store_true", help="Filter for video files only.")
-filter_group.add_argument("--subs-only", action="store_true", help="Filter for subtitle files only.")
+    # 2. INTERACTIVE WIZARD PATHWAY
+    if args.interactive:
+        # Instantiate the View layer module
+        wizard = InteractiveWizard()
 
-args: argparse.Namespace = parser.parse_args()
+        # Inject the View into the Controller layer module (Dependency Injection)
+        api_controller = APIMetadataController(wizard)
 
-# Validate the directory
-dir_path = Path(args.target_dir)
+        # Execute the controller logic pipeline
+        api_controller.run()
 
-if not dir_path.exists() or not dir_path.is_dir():
-    print(f"Error: '{args.target_dir}' is not a valid directory", file=sys.stderr)
+        # ----------------------------------------------------------------------
+        # Pipeline B: Local Folder Ingestion & Directory Selection
+        # ----------------------------------------------------------------------
+        print("\n\033[36m=== Initializing Local Filesystem Setup ===\033[0m")
+
+        # Inject the same view framework into your directory controller
+        dir_controller = DirectoryController(wizard)
+
+        target_dir = dir_controller.run()
+
+        print("\n\033[32m[✔] Directories Target Lock Complete!\033[0m")
+        print(f" Source: {target_dir}")
+
+        # Clean termination so it never falls through to old scanning processes
+        sys.exit(0)
+
+    # 3. FALLBACK DEFAULT LOGIC
+    # Since positional arguments are currently disabled in cli.py, running
+    # the application without any flags would cause it to silently do nothing.
+    # This block provides a helpful message guiding users to the interactive flag.
+    print(
+        "Welcome to metatag!\n"
+        "Standard file system mode is temporarily offline for maintenance.\n"
+        "Please launch the interactive metadata explorer using:\n\n"
+        "    $ metatag --interactive\n"
+        "    $ metatag -a\n",
+        file=sys.stderr,
+    )
     sys.exit(1)
 
-# Determine which extensions are allowed based on the flags
-if args.videos_only:
-    allowed_extensions = {"mp4", "mkv"}
-elif args.subs_only:
-    allowed_extensions = {"srt"}
-else:
-    allowed_extensions = {"mp4", "mkv", "srt"}
 
-# Choose the pathlib tool based on the depth flags
-# (Defaults to non-recursive if they don't specify)
-search_generator = dir_path.rglob("*") if args.recursive else dir_path.glob("*")
-
-files: list[Any] = []
-
-for item in search_generator:
-    if item.is_file() and item.suffix.lower().lstrip(".") in allowed_extensions:
-        files.append(item)
-
-if not files:
-    print("No matching files found based on your filters.")
-else:
-    for file in files:
-        if args.recursive:
-            print(f"[R] {file.relative_to(dir_path)}")
-        else:
-            print(f"NR {file.name}")
+if __name__ == "__main__":
+    main()
