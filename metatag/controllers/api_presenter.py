@@ -11,19 +11,12 @@ from typing import TYPE_CHECKING
 
 from InquirerPy import inquirer
 
-from metatag.views.theme import Theme
+from metatag.views.theme import Theme, custom_style
 
 # from InquirerPy.utils import InquirerPyStyle
 
 if TYPE_CHECKING:
     from metatag.views.interactive import InteractiveWizard
-
-# Import identical theme styling for visual uniformity across menus
-from metatag.views.interactive import custom_style
-
-cyan = "\033[36m"
-bold = "\033[1m"
-reset = "\033[0m"
 
 
 class APIMetadataController:
@@ -33,7 +26,7 @@ class APIMetadataController:
         """Initializes the presenter controller with the interactive wizard service."""
         self.wizard = wizard
 
-    def run(self) -> None:
+    def run(self) -> tuple[dict, int, list]:
         """Runs the interactive selection pipeline and prints final filtered API data."""
         print(f"{Theme.GREY}To cancel this prompt press ctrl+c{Theme.RESET}")
 
@@ -66,7 +59,7 @@ class APIMetadataController:
                 sys.exit(0)
 
             # Extract the correct API sequence identifiers directly out of the selected choice value object
-            chosen_season_num = selected_season["number"]
+            chosen_season_num: int = selected_season["number"]
             season_id = selected_season["id"]
 
             # Step 4: Fetch episodes exclusively for that season ID
@@ -81,10 +74,12 @@ class APIMetadataController:
             # print("\n")
 
             # Step 5: Render final episode names from the API payload
-            print(f"\n{bold}{cyan}{show_data['name']}{reset} - Season {chosen_season_num} Episode List")
+            print(f"\n{Theme.CYAN}{show_data['name']}{Theme.RESET} - Season {chosen_season_num} Episode List")
             for ep in episodes:
                 # Check if the number exists, otherwise format it as a fallback string placeholder
                 ep_num = ep.get("number")
                 ep_str = f"{ep_num:02d}" if ep_num is not None else "??"
 
                 print(f"{ep_str} - {ep['name']}")
+
+        return show_data, chosen_season_num, episodes

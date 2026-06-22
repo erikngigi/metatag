@@ -83,6 +83,23 @@ class InteractiveWizard:
 
         return season_episode_data
 
+    def prompt_rename_type(self) -> str:
+        """Select between renaming subtitles and video files."""
+        try:
+            rename_selection = inquirer.select(
+                message="Select File Type:",
+                choices=[
+                    {"name": "video files (mkv or mp4)", "value": "video"},
+                    {"name": "subtitle files (srt)", "value": "subtitle"},
+                ],
+                style=custom_style,
+            ).execute()
+        except KeyboardInterrupt:
+            print(f"{Theme.RED}Operation Cancelled.{Theme.RESET}")
+            sys.exit(0)
+
+        return str(rename_selection)
+
     def prompt_target_directory(self, default_path: str) -> str:
         """Prompts the user to pick a source directory with live tab-completion."""
         try:

@@ -11,8 +11,10 @@ import sys
 from metatag.cli import parse_arguments
 from metatag.controllers.api_presenter import APIMetadataController
 from metatag.controllers.directory_selector import DirectoryController
+from metatag.controllers.file_selector import FileSelectorController
 from metatag.views.interactive import InteractiveWizard
-from metatag.views.theme import Theme
+
+# from metatag.views.theme import Theme
 
 
 def main() -> None:
@@ -34,14 +36,20 @@ def main() -> None:
         # ----------------------------------------------------------------------
         # Pipeline B: Local Folder Ingestion & Directory Selection
         # ----------------------------------------------------------------------
-        print(f"\n{Theme.CYAN} ---Initializing Local Filesystem Setup--- {Theme.RESET}")
+        # print(f"\n{Theme.CYAN} ---Initializing Local Filesystem Setup--- {Theme.RESET}")
 
         # Inject the same view framework into your directory controller
         dir_controller = DirectoryController(wizard)
 
         target_dir = dir_controller.run()
 
-        print(f"{Theme.CYAN}Selected Directory:{Theme.RESET} {Theme.GREEN}{target_dir}{Theme.RESET}")
+        # print(f"{Theme.CYAN}Selected Directory:{Theme.RESET} {Theme.GREEN}{target_dir}{Theme.RESET}")
+
+        # ----------------------------------------------------------------------
+        # Pipeline C: Target File Filtering and Inventory List Extraction
+        # ----------------------------------------------------------------------
+        file_controller = FileSelectorController(wizard, target_dir)
+        file_controller.run()
 
         # Clean termination so it never falls through to old scanning processes
         sys.exit(0)
