@@ -11,6 +11,8 @@ from typing import TYPE_CHECKING
 
 from InquirerPy import inquirer
 
+from metatag.views.theme import Theme
+
 # from InquirerPy.utils import InquirerPyStyle
 
 if TYPE_CHECKING:
@@ -33,7 +35,7 @@ class APIMetadataController:
 
     def run(self) -> None:
         """Runs the interactive selection pipeline and prints final filtered API data."""
-        print("\033[90mTo cancel this prompt press ctrl+c / ctrl+z\033[0m\n")
+        print(f"{Theme.GREY}To cancel this prompt press ctrl+c{Theme.RESET}")
 
         # Step 1: Prompt for media type
         media_type = self.wizard.prompt_media_type()
@@ -60,7 +62,7 @@ class APIMetadataController:
                     message="Select a season to inspect:", choices=season_choices, style=custom_style
                 ).execute()
             except KeyboardInterrupt:
-                print("\n\n\033[91m[!] Operation cancelled. Exiting safely...\033[0m")
+                print(f"{Theme.RED}Operation Cancelled.{Theme.RESET}")
                 sys.exit(0)
 
             # Extract the correct API sequence identifiers directly out of the selected choice value object
@@ -86,4 +88,3 @@ class APIMetadataController:
                 ep_str = f"{ep_num:02d}" if ep_num is not None else "??"
 
                 print(f"{ep_str} - {ep['name']}")
-            # print("\n")

@@ -11,19 +11,9 @@ from typing import Any
 
 import requests
 from InquirerPy import inquirer
-from InquirerPy.utils import InquirerPyStyle
 from InquirerPy.validator import PathValidator
 
-# Custom UI theme styling matching the orange '?' prompt theme
-custom_style = InquirerPyStyle(
-    {
-        "questionmark": "#ff9e3b bold",  # Orange '?' mark
-        "question": "#ffffff bold",  # White bold prompt text
-        "input": "#00ffcc",  # Cyan user input text
-        "pointer": "#00ffcc bold",  # Selection cursor arrow
-        "choice": "#ffffff",  # Standard choices
-    }
-)
+from metatag.views.theme import Theme, custom_style
 
 
 class InteractiveWizard:
@@ -42,11 +32,11 @@ class InteractiveWizard:
             ).execute()
 
         except KeyboardInterrupt:
-            print("\n\n\033[91m[!] Operation cancelled. Exiting safely...\033[0m")
+            print(f"{Theme.RED}Operation Cancelled.{Theme.RESET}")
             sys.exit(0)
 
         if media_selection == "anime":
-            print("\n\033[33mAnime support is currently under development.\033[0m")
+            print(f"{Theme.YELLOW}Anime support is currently under development.{Theme.RESET}")
             sys.exit(1)
 
         return str(media_selection)
@@ -60,7 +50,7 @@ class InteractiveWizard:
                 validate=lambda text: len(text.strip()) > 0 or "Show name cannot be empty.",
             ).execute()
         except KeyboardInterrupt:
-            print("\n\n\033[91m[!] Operation cancelled. Exiting safely...\033[0m")
+            print(f"{Theme.YELLOW}Anime support is currently under development.{Theme.RESET}")
             sys.exit(0)
 
         return str(show_name.strip())
@@ -71,7 +61,9 @@ class InteractiveWizard:
         show_response = requests.get(search_url, params={"q": show_name})
 
         if show_response.status_code == 404:
-            print(f"Error: Could not find any show name '{show_name}' on TVMaze.")
+            print(
+                f"{Theme.YELLOW}Error: Could not find any show name {Theme.GREEN}'{show_name}'{Theme.RESET} on TVMaze.{Theme.RESET}"
+            )
             sys.exit(1)
 
         show_data = show_response.json()
@@ -103,5 +95,5 @@ class InteractiveWizard:
             ).execute()
             return str(target_dir)
         except KeyboardInterrupt:
-            print("\n\n\033[91m[!] Configuration canceled. Exiting safely...\033[0m")
+            print(f"{Theme.RED}Operation Cancelled.{Theme.RESET}")
             sys.exit(1)

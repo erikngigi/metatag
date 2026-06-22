@@ -1,7 +1,15 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "metatag"
 version = "1.0.0"
-requires-python = ">=3.12"
+description = "A structured, API-driven renaming engine for local media collections."
+dependencies = ["requests", "InquirerPy", "argcomplete"]
+
+[project.scripts]
+metatag = "metatag.main:main"
 
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.

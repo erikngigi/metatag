@@ -12,6 +12,7 @@ from metatag.cli import parse_arguments
 from metatag.controllers.api_presenter import APIMetadataController
 from metatag.controllers.directory_selector import DirectoryController
 from metatag.views.interactive import InteractiveWizard
+from metatag.views.theme import Theme
 
 
 def main() -> None:
@@ -33,15 +34,14 @@ def main() -> None:
         # ----------------------------------------------------------------------
         # Pipeline B: Local Folder Ingestion & Directory Selection
         # ----------------------------------------------------------------------
-        print("\n\033[36m=== Initializing Local Filesystem Setup ===\033[0m")
+        print(f"\n{Theme.CYAN} ---Initializing Local Filesystem Setup--- {Theme.RESET}")
 
         # Inject the same view framework into your directory controller
         dir_controller = DirectoryController(wizard)
 
         target_dir = dir_controller.run()
 
-        print("\n\033[32m[✔] Directories Target Lock Complete!\033[0m")
-        print(f" Source: {target_dir}")
+        print(f"{Theme.CYAN}Selected Directory:{Theme.RESET} {Theme.GREEN}{target_dir}{Theme.RESET}")
 
         # Clean termination so it never falls through to old scanning processes
         sys.exit(0)

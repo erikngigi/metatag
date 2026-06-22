@@ -1,5 +1,12 @@
-blessed==1.44.0
-jinxed==2.0.4
-pick==2.6.0
+argcomplete==3.6.3
+certifi==2026.6.17
+charset-normalizer==3.4.7
+idna==3.18
+inquirerpy==0.3.4
+-e file:///home/eric/CodeStudio/Personal/Python/metatag
+pfzy==0.3.4
 pip==26.1.2
+prompt-toolkit==3.0.52
+requests==2.34.2
+urllib3==2.7.0
 wcwidth==0.8.1

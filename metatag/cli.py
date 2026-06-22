@@ -22,6 +22,8 @@ Options:
 
 import argparse
 
+import argcomplete
+
 
 def parse_arguments() -> argparse.Namespace:
     """
@@ -76,5 +78,8 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         "-a", "--interactive", action="store_true", help="Launch step-by-step interactive configuration setup wizard"
     )
+
+    # Register the autocomplete hook before calling parse_args()
+    argcomplete.autocomplete(parser)
 
     return parser.parse_args()
