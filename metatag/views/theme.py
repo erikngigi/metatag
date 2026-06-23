@@ -6,14 +6,18 @@ structured namespace class for ANSI raw terminal formatting.
 
 from InquirerPy.utils import InquirerPyStyle
 
-# Keep the InquirerPyStyle object as is since it expects a specific directory structure
 custom_style = InquirerPyStyle(
     {
-        "questionmark": "#ff9e3b bold",  # Orange '?' mark
-        "question": "#ffffff bold",  # White bold prompt text
-        "input": "#00ffcc",  # Cyan user input text
-        "pointer": "#00ffcc bold",  # Selection cursor arrow
+        "questionmark": "#ff9e3b bold",
+        "question": "#ffffff bold",
+        "input": "#00FF7B",
+        "pointer": "#00FF7B",
         "choice": "#ffffff",
+        "answer": "#00FF7B",  # The committed selection shown after choosing
+        "answered_question": "#ffffff",  # The message text after the prompt is answered
+        "validator": "#ff6b6b bold",  # Inline validation error text
+        "highlighted": "#FF8800",  # The choice currently under the cursor
+        "instruction": "#888888 italic",  # Secondary hint text e.g. "(Use arrow keys)"
     }
 )
 

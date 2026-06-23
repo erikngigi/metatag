@@ -6,6 +6,8 @@ gathers choices, and queries the TVMaze API to discover metadata.
 
 from __future__ import annotations
 
+import os
+import subprocess
 import sys
 from typing import Any
 
@@ -27,7 +29,10 @@ class InteractiveWizard:
         try:
             media_selection = inquirer.select(
                 message="Select Media Type:",
-                choices=[{"name": "1. TV Shows", "value": "tv"}, {"name": "2. Anime (Coming Soon)", "value": "anime"}],
+                choices=[
+                    {"name": "Anime Servies", "value": "anime_series"},
+                    {"name": "Tv Series", "value": "tv_series"},
+                ],
                 style=custom_style,
             ).execute()
 
@@ -35,7 +40,7 @@ class InteractiveWizard:
             print(f"{Theme.RED}Operation Cancelled.{Theme.RESET}")
             sys.exit(0)
 
-        if media_selection == "anime":
+        if media_selection == "anime_series":
             print(f"{Theme.YELLOW}Anime support is currently under development.{Theme.RESET}")
             sys.exit(1)
 
@@ -45,12 +50,13 @@ class InteractiveWizard:
         """Get the TV Show name from the user via text prompt."""
         try:
             show_name = inquirer.text(
-                message="Search TV Show:",
+                message="Search for Tv Show using TVMaze API:",
                 style=custom_style,
-                validate=lambda text: len(text.strip()) > 0 or "Show name cannot be empty.",
+                validate=lambda text: len(text.strip()) > 0,
+                invalid_message="TV Show name cannot be empty.",
             ).execute()
         except KeyboardInterrupt:
-            print(f"{Theme.YELLOW}Anime support is currently under development.{Theme.RESET}")
+            print(f"{Theme.RED}Operation cancelled.{Theme.RESET}")
             sys.exit(0)
 
         return str(show_name.strip())
@@ -61,9 +67,7 @@ class InteractiveWizard:
         show_response = requests.get(search_url, params={"q": show_name})
 
         if show_response.status_code == 404:
-            print(
-                f"{Theme.YELLOW}Error: Could not find any show name {Theme.GREEN}'{show_name}'{Theme.RESET} on TVMaze.{Theme.RESET}"
-            )
+            print(f"{Theme.YELLOW}Could not find any show name '{show_name}' on TVMaze.{Theme.RESET}")
             sys.exit(1)
 
         show_data = show_response.json()
@@ -83,6 +87,43 @@ class InteractiveWizard:
 
         return season_episode_data
 
+    def prompt_continue_or_exit(self) -> str:
+        """Prompts the user to continue to file renaming or exit after viewing the episodes list."""
+        try:
+            next_action = inquirer.select(
+                message="Choose your next action:",
+                choices=[
+                    {"name": "Continue to file renaming", "value": "continue"},
+                    {"name": "Restart", "value": "restart"},
+                    {"name": "Exit", "value": "exit"},
+                ],
+                style=custom_style,
+            ).execute()
+        except KeyboardInterrupt:
+            print(f"{Theme.RED}Operation cancelled.{Theme.RESET}")
+            sys.exit(0)
+
+        if next_action == "exit":
+            print(f"{Theme.GREY}Exiting. No files were modified.{Theme.RESET}")
+            sys.exit(0)
+
+        return str(next_action)
+
+    def prompt_target_directory(self, default_path: str) -> str:
+        """Prompts the user to pick a source directory with live tab-completion."""
+        try:
+            target_dir = inquirer.filepath(
+                message="Select source target directory:",
+                style=custom_style,
+                default=default_path,
+                only_directories=True,
+                validate=PathValidator(is_dir=True, message="Target directory path does not exist."),
+            ).execute()
+            return str(target_dir)
+        except KeyboardInterrupt:
+            print(f"{Theme.RED}Operation Cancelled.{Theme.RESET}")
+            sys.exit(1)
+
     def prompt_rename_type(self) -> str:
         """Select between renaming subtitles and video files."""
         try:
@@ -100,17 +141,6 @@ class InteractiveWizard:
 
         return str(rename_selection)
 
-    def prompt_target_directory(self, default_path: str) -> str:
-        """Prompts the user to pick a source directory with live tab-completion."""
-        try:
-            target_dir = inquirer.filepath(
-                message="Select source target directory:",
-                style=custom_style,
-                default=default_path,
-                only_directories=True,
-                validate=PathValidator(is_dir=True, message="Target directory path does not exist."),
-            ).execute()
-            return str(target_dir)
-        except KeyboardInterrupt:
-            print(f"{Theme.RED}Operation Cancelled.{Theme.RESET}")
-            sys.exit(1)
+    def clear_screen(self) -> None:
+        """Clears the Linux terminal screen securely using subprocess."""
+        subprocess.run(["clear"])

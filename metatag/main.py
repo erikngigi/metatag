@@ -12,6 +12,7 @@ from metatag.cli import parse_arguments
 from metatag.controllers.api_presenter import APIMetadataController
 from metatag.controllers.directory_selector import DirectoryController
 from metatag.controllers.file_selector import FileSelectorController
+from metatag.controllers.renamer import FileRenamerController
 from metatag.views.interactive import InteractiveWizard
 
 # from metatag.views.theme import Theme
@@ -31,7 +32,7 @@ def main() -> None:
         api_controller = APIMetadataController(wizard)
 
         # Execute the controller logic pipeline
-        api_controller.run()
+        show_data, season_num, episodes = api_controller.run()
 
         # ----------------------------------------------------------------------
         # Pipeline B: Local Folder Ingestion & Directory Selection
@@ -49,7 +50,17 @@ def main() -> None:
         # Pipeline C: Target File Filtering and Inventory List Extraction
         # ----------------------------------------------------------------------
         file_controller = FileSelectorController(wizard, target_dir)
-        file_controller.run()
+        files_to_process = file_controller.run()
+
+        # ----------------------------------------------------------------------
+        # Pipeline D: File System Execution Sequence
+        # ----------------------------------------------------------------------
+        if files_to_process:
+            renamer = FileRenamerController(
+                target_dir=target_dir, local_files=files_to_process, remote_episodes=episodes
+            )
+
+            renamer.execute_rename(show_name=show_data["name"], season_num=season_num, dry_run=args.dry_run)
 
         # Clean termination so it never falls through to old scanning processes
         sys.exit(0)

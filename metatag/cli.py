@@ -76,7 +76,19 @@ def parse_arguments() -> argparse.Namespace:
     #     help="Perform a dry run. Connects to API and prints proposed name changes without modifying any files.",
     # )
     parser.add_argument(
-        "-a", "--interactive", action="store_true", help="Launch step-by-step interactive configuration setup wizard"
+        "-a",
+        "--interactive",
+        action="store_true",
+        dest="interactive",
+        help="Launch step-by-step interactive configuration setup wizard",
+    )
+
+    parser.add_argument(
+        "-d",
+        "--dry-run",
+        action="store_true",
+        dest="dry_run",
+        help="Perform a dry run. Display proposed filename changes without altering files on disk.",
     )
 
     # Register the autocomplete hook before calling parse_args()

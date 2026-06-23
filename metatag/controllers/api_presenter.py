@@ -13,8 +13,6 @@ from InquirerPy import inquirer
 
 from metatag.views.theme import Theme, custom_style
 
-# from InquirerPy.utils import InquirerPyStyle
-
 if TYPE_CHECKING:
     from metatag.views.interactive import InteractiveWizard
 
@@ -28,58 +26,74 @@ class APIMetadataController:
 
     def run(self) -> tuple[dict, int, list]:
         """Runs the interactive selection pipeline and prints final filtered API data."""
-        print(f"{Theme.GREY}To cancel this prompt press ctrl+c{Theme.RESET}")
 
-        # Step 1: Prompt for media type
-        media_type = self.wizard.prompt_media_type()
+        while True:
+            print(f"{Theme.GREY}To cancel this prompt press ctrl+c{Theme.RESET}")
 
-        if media_type == "tv":
-            # Step 2: Get show name from user
-            show_name = self.wizard.prompt_show_name()
+            # Step 1: Prompt for media type
+            media_type = self.wizard.prompt_media_type()
 
-            # Step 3: Fetch show metadata and seasons bundle from the API
-            show_data, seasons_data = self.wizard.fetch_show_metadata(show_name)
+            if media_type == "tv_series":
+                # Step 2: Get show name from user
+                show_name = self.wizard.prompt_show_name()
 
-            print(f"\nMatched: {show_data['name']} ({show_data.get('language', 'Unknown')})")
+                # Step 3: Fetch show metadata and seasons bundle from the API
+                show_data, seasons_data = self.wizard.fetch_show_metadata(show_name)
 
-            # Re-map seasons data into clear choices dictionary keypairs for InquirerPy
-            season_choices = []
-            for season in seasons_data:
-                ep_count = season.get("episodeOrder") or "??"
-                label = f"Season {season['number']} ({ep_count} episodes)"
-                season_choices.append({"name": label, "value": season})
+                if show_data["ended"] is None:
+                    show_ended_status = "Ongoing"
+                else:
+                    show_ended_status = show_data["ended"]
 
-            # Prompt user to select a season using interactive arrows
-            try:
-                selected_season = inquirer.select(
-                    message="Select a season to inspect:", choices=season_choices, style=custom_style
-                ).execute()
-            except KeyboardInterrupt:
-                print(f"{Theme.RED}Operation Cancelled.{Theme.RESET}")
-                sys.exit(0)
+                print(
+                    f"{Theme.YELLOW}Show name: {show_data['name']}\n"
+                    f"Status: {show_data['status']}\n"
+                    f"Premiered On: {show_data['premiered']}\n"
+                    f"Ended On: {show_ended_status}{Theme.RESET}"
+                )
 
-            # Extract the correct API sequence identifiers directly out of the selected choice value object
-            chosen_season_num: int = selected_season["number"]
-            season_id = selected_season["id"]
+                # Re-map seasons data into clear choices dictionary keypairs for InquirerPy
+                season_choices = []
+                for season in seasons_data:
+                    ep_count = season.get("episodeOrder") or "??"
+                    label = f"Season {season['number']} ({ep_count} episodes)"
+                    season_choices.append({"name": label, "value": season})
 
-            # Step 4: Fetch episodes exclusively for that season ID
-            episodes = self.wizard.fetch_season_episodes(season_id)
+                # Prompt user to select a season using interactive arrows
+                try:
+                    selected_season = inquirer.select(
+                        message="Select a season to inspect the episode list:",
+                        choices=season_choices,
+                        style=custom_style,
+                    ).execute()
+                except KeyboardInterrupt:
+                    print(f"{Theme.RED}Operation cancelled.{Theme.RESET}")
+                    sys.exit(0)
 
-            # Step 5: Render final episode names from the API payload
-            # print(f"\n{show_data['name']} - Season {chosen_season_num} Episode List")
-            # for ep in episodes:
-            #     # print(f" S{ep['season']:02d}E{ep['number']:02d} - {ep['name']}")
-            #     print(f" E{ep['number']:02d} - {ep['name']}")
-            # # print("====================================================\n")
-            # print("\n")
+                # Extract the correct API sequence identifiers directly out of the selected choice value object
+                chosen_season_num: int = selected_season["number"]
+                season_id = selected_season["id"]
 
-            # Step 5: Render final episode names from the API payload
-            print(f"\n{Theme.CYAN}{show_data['name']}{Theme.RESET} - Season {chosen_season_num} Episode List")
-            for ep in episodes:
-                # Check if the number exists, otherwise format it as a fallback string placeholder
-                ep_num = ep.get("number")
-                ep_str = f"{ep_num:02d}" if ep_num is not None else "??"
+                # Step 4: Fetch episodes exclusively for that season ID
+                episodes = self.wizard.fetch_season_episodes(season_id)
 
-                print(f"{ep_str} - {ep['name']}")
+                # Step 5: Render final episode names from the API payload
+                print(f"{show_data['name']} - Season {chosen_season_num} episode list:")
+                for ep in episodes:
+                    ep_num = ep.get("number")
+                    ep_str = f"{ep_num:02d}" if ep_num is not None else "??"
+                    print(f"{ep_str} - {ep['name']}")
+                print()
+
+                # Step 6: Prompt to continue or exit, and capture the action
+                next_action = self.wizard.prompt_continue_or_exit()
+
+                if next_action == "restart":
+                    print(f"\n{Theme.YELLOW}--- Restarting Wizard ---{Theme.RESET}\n")
+                    self.wizard.clear_screen()
+                    continue  # Jumps back to the top of the 'while True' loop
+
+                # If they chose "continue", break out of the loop and return the data
+                break
 
         return show_data, chosen_season_num, episodes
