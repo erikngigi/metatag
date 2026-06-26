@@ -4,8 +4,6 @@ Manages data fetching, network request orchestration, and exception handling
 for interacting with the TVMaze API endpoints.
 """
 
-import time
-from codecs import raw_unicode_escape_decode
 from typing import Any
 
 import httpx
@@ -93,13 +91,20 @@ class TVMazeModel:
             ep_order = season.get("episodeOrder")
             ep_count_str = f"{ep_order} episodes" if ep_order is not None else "TBA"
 
-            label = f"Season {season['number']} ({ep_count_str})"
+            premiered_raw: str = season.get("premiereDate")
+            ended_raw: str = season.get("endDate")
+
+            start_year = premiered_raw.split("-")[0] if premiered_raw else "TBA"
+            end_year = ended_raw.split("-")[0] if ended_raw else "TBA"
+            year_range = f"{start_year} - {end_year}"
+
+            label = f"Season {season['number']} ({ep_count_str})  ({year_range})"
 
             season_choices.append({"name": label, "value": season})
 
         return season_choices
 
-    def fetch_season_episodes_names(self, season_id: int) -> list[dict[str, Any]]:
+    def fetch_season_episodes_names(self, season_id: int, show_title: str) -> list[dict[str, Any]]:
         """Retrieves all episodes belonging to a specific season.
 
         Queries the TVMaze '/seasons/{id}/episodes' endpoint to collect the full
@@ -136,7 +141,7 @@ class TVMazeModel:
                 is_significant = episode.get("type") == "significant_special"
                 marker = f"S{season_num:02d}-SPCL" if is_significant else f"S{season_num:02d}-SHORT"
 
-            label = f"{marker} - {ep_name}"
+            label = f"{show_title} {marker} - {ep_name}"
 
             episode_choices.append({"name": label, "value": episode})
 

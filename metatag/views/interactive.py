@@ -30,8 +30,8 @@ class InteractiveWizard:
             media_selection = inquirer.select(
                 message="Select Media Type:",
                 choices=[
-                    {"name": "Anime Servies", "value": "anime_series"},
-                    {"name": "Tv Series", "value": "tv_series"},
+                    {"name": "  Anime", "value": "anime_series"},
+                    {"name": "  TV", "value": "tv_series"},
                 ],
                 style=custom_style,
             ).execute()
@@ -50,7 +50,7 @@ class InteractiveWizard:
         """Get the TV Show name from the user via text prompt."""
         try:
             show_name = inquirer.text(
-                message="Search for Tv Show using TVMaze API:",
+                message="Search TV Show:",
                 style=custom_style,
                 validate=lambda text: len(text.strip()) > 0,
                 invalid_message="TV Show name cannot be empty.",
@@ -65,7 +65,7 @@ class InteractiveWizard:
         """Display pre-formatted show choices directly to the user."""
         try:
             selected_show: dict[str, Any] = inquirer.select(
-                message="Select a show from the search list:", choices=preformatted_choices, style=custom_style
+                message="Select Show:", choices=preformatted_choices, style=custom_style
             ).execute()
 
             return selected_show
@@ -78,7 +78,7 @@ class InteractiveWizard:
         """Display pre-formatted season choices directly to the user."""
         try:
             selected_season: dict[str, Any] = inquirer.select(
-                message="Select a season to inspect the episode list:",
+                message="Select Season:",
                 choices=preformatted_choices,
                 style=custom_style,
             ).execute()
@@ -95,15 +95,15 @@ class InteractiveWizard:
             print(f"{Theme.GREEN}->{Theme.RESET} {name}")
         print()
 
-    def prompt_continue_or_exit(self) -> str:
+    def prompt_metadata_checkpoint(self) -> str:
         """Prompts the user to continue to file renaming or exit after viewing the episodes list."""
         try:
             next_action = inquirer.select(
-                message="Choose your next action:",
+                message="Choose Next Action:",
                 choices=[
-                    {"name": "Rename Tv Show files", "value": "continue"},
-                    {"name": "Restart Metatag", "value": "restart"},
-                    {"name": "Exit Metatag", "value": "exit"},
+                    {"name": "󰑕 Rename Files", "value": "continue"},
+                    {"name": "󰜉 Restart Metatag", "value": "restart"},
+                    {"name": "󰩈 Exit Metatag", "value": "exit"},
                 ],
                 style=custom_style,
             ).execute()
@@ -117,11 +117,28 @@ class InteractiveWizard:
 
         return str(next_action)
 
+    def prompt_post_rename_options(self) -> str:
+        """Prompts the user on what to do after a successful rename execution."""
+        try:
+            next_action = inquirer.select(
+                message="Renaming Complete. What would you like to do next?",
+                choices=[
+                    {"name": "󰑕 Run Another Rename Cycle", "value": "search_again"},
+                    {"name": "󰿅 Exit Metatag", "value": "exit"},
+                ],
+                style=custom_style,
+            ).execute()
+        except KeyboardInterrupt:
+            print(f"{Theme.RED}Operation cancelled.{Theme.RESET}")
+            sys.exit(0)
+
+        return str(next_action)
+
     def prompt_target_directory(self, default_path: str) -> str:
         """Prompts the user to pick a source directory with live tab-completion."""
         try:
             target_dir = inquirer.filepath(
-                message="Select source target directory:",
+                message="Select Directory:",
                 style=custom_style,
                 default=default_path,
                 only_directories=True,
@@ -136,10 +153,10 @@ class InteractiveWizard:
         """Select between renaming subtitles and video files."""
         try:
             rename_selection = inquirer.select(
-                message="Select File Type:",
+                message="Select Filetype:",
                 choices=[
-                    {"name": "video files (mkv or mp4)", "value": "video"},
-                    {"name": "subtitle files (srt)", "value": "subtitle"},
+                    {"name": " mkv/mp4", "value": "video"},
+                    {"name": "󰨖 srt", "value": "subtitle"},
                 ],
                 style=custom_style,
             ).execute()
@@ -156,6 +173,18 @@ class InteractiveWizard:
         except KeyboardInterrupt:
             print(f"{Theme.RED}Operation cancelled.{Theme.RESET}")
             sys.exit(0)
+
+    def prompt_rename_confirmation(self) -> bool:
+        """Prompts the user to verify and confirm the file renaming actions."""
+        try:
+            rename_prompt = inquirer.confirm(
+                message="Do you want to proceed with renaming these files?", default=False, style=custom_style
+            ).execute()
+        except KeyboardInterrupt:
+            print(f"{Theme.RED}Operation cancelled.{Theme.RESET}")
+            sys.exit(0)
+
+        return bool(rename_prompt)
 
     def clear_screen(self) -> None:
         """Clears the Linux terminal screen securely using subprocess."""

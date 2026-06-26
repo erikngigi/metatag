@@ -9,14 +9,13 @@ from __future__ import annotations
 import sys
 
 from metatag.cli import parse_arguments
-from metatag.controllers.api_presenter import APIMetadataController
+from metatag.controllers.api_selector import APISelectorController
 from metatag.controllers.directory_selector import DirectoryController
 from metatag.controllers.file_selector import FileSelectorController
 from metatag.controllers.renamer import FileRenamerController
 from metatag.models.tvmaze_model import TVMazeModel
 from metatag.views.interactive import InteractiveWizard
-
-# from metatag.views.theme import Theme
+from metatag.views.theme import Theme
 
 
 def main() -> None:
@@ -32,39 +31,54 @@ def main() -> None:
         # 2. Instantiate the View layer module (User Interface)
         wizard = InteractiveWizard()
 
-        # Inject the View into the Controller layer module (Dependency Injection)
-        api_controller = APIMetadataController(wizard=wizard, tvmaze=tvmaze)
+        while True:
+            try:
+                # Inject the View into the Controller layer module (Dependency Injection)
+                api_controller = APISelectorController(wizard=wizard, tvmaze=tvmaze)
 
-        # Execute the controller logic pipeline
-        show_data, season_num, episodes = api_controller.run()
+                # Execute the controller logic pipeline (Returns exact types needed)
+                show_title, season_num, season_episode_list = api_controller.run()
 
-        print(season_num)
-        # ----------------------------------------------------------------------
-        # Pipeline B: Local Folder Ingestion & Directory Selection
-        # ----------------------------------------------------------------------
+                # ----------------------------------------------------------------------
+                # Pipeline B: Local Folder Ingestion & Directory Selection
+                # ----------------------------------------------------------------------
+                dir_controller = DirectoryController(wizard)
+                target_dir = dir_controller.run()
 
-        # Inject the same view framework into your directory controller
-        dir_controller = DirectoryController(wizard)
+                # ----------------------------------------------------------------------
+                # Pipeline C: Target File Filtering and Inventory List Extraction
+                # ----------------------------------------------------------------------
+                file_controller = FileSelectorController(wizard, target_dir)
+                files_to_process = file_controller.run()
 
-        target_dir = dir_controller.run()
+                # ----------------------------------------------------------------------
+                # Pipeline D: File System Execution Sequence
+                # ----------------------------------------------------------------------
+                # ----------------------------------------------------------------------
+                if files_to_process:
+                    renamer = FileRenamerController(
+                        target_dir=target_dir, local_files=files_to_process, remote_episodes=season_episode_list
+                    )
 
-        # ----------------------------------------------------------------------
-        # Pipeline C: Target File Filtering and Inventory List Extraction
-        # ----------------------------------------------------------------------
-        file_controller = FileSelectorController(wizard, target_dir)
-        files_to_process = file_controller.run()
+                renamer.execute_rename(show_name=show_title, season_num=season_num, dry_run=True)
 
-        # ----------------------------------------------------------------------
-        # Pipeline D: File System Execution Sequence
-        # ----------------------------------------------------------------------
-        if files_to_process:
-            renamer = FileRenamerController(
-                target_dir=target_dir, local_files=files_to_process, remote_episodes=episodes
-            )
+                if wizard.prompt_rename_confirmation():
+                    renamer.execute_rename(show_name=show_title, season_num=season_num, dry_run=args.dry_run)
+                else:
+                    print(f"{Theme.YELLOW}Renaming sequence aborted by user. No files were changed.{Theme.RESET}")
 
-            renamer.execute_rename(show_name=show_data["name"], season_num=season_num, dry_run=args.dry_run)
+                next_move = wizard.prompt_post_rename_options()
 
-        # Clean termination so it never falls through to old scanning processes
+                if next_move == "exit":
+                    print(f"{Theme.GREEN}Exiting Metatag. Goodbye.{Theme.RESET}")
+                    break
+
+                wizard.clear_screen()
+
+            except KeyboardInterrupt:
+                print(f"{Theme.YELLOW}Execution interrupted by user. Exiting Metatag.")
+                break
+
         sys.exit(0)
 
     # 3. FALLBACK DEFAULT LOGIC
