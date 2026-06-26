@@ -6,25 +6,24 @@ and formats the resulting API metadata payloads directly for terminal display.
 
 from __future__ import annotations
 
-import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
-from InquirerPy import inquirer
-
-from metatag.views.theme import Theme, custom_style
+from metatag.views.theme import Theme
 
 if TYPE_CHECKING:
+    from metatag.models.tvmaze_model import TVMazeModel
     from metatag.views.interactive import InteractiveWizard
 
 
 class APIMetadataController:
     """Orchestrates interactive metadata menu flows using the TVMaze API wrapper."""
 
-    def __init__(self, wizard: InteractiveWizard) -> None:
+    def __init__(self, wizard: InteractiveWizard, tvmaze: TVMazeModel) -> None:
         """Initializes the presenter controller with the interactive wizard service."""
         self.wizard = wizard
+        self.tvmaze = tvmaze
 
-    def run(self) -> tuple[dict, int, list]:
+    def run(self) -> tuple[dict[str, Any], int, list[dict[str, Any]]]:
         """Runs the interactive selection pipeline and prints final filtered API data."""
 
         while True:
@@ -37,53 +36,52 @@ class APIMetadataController:
                 # Step 2: Get show name from user
                 show_name = self.wizard.prompt_show_name()
 
-                # Step 3: Fetch show metadata and seasons bundle from the API
-                show_data, seasons_data = self.wizard.fetch_show_metadata(show_name)
+                # Step 3: Fuzzy search for TV Show name using TVMaze API
+                raw_shows = self.tvmaze.fuzzy_search_show(show_name)
 
-                if show_data["ended"] is None:
-                    show_ended_status = "Ongoing"
-                else:
-                    show_ended_status = show_data["ended"]
+                # Guard Clause: Handle None or empty results safely!
+                if not raw_shows:
+                    print(f"{Theme.YELLOW}No shows found matching '{show_name}'. Please try again.{Theme.RESET}")
+                    continue  # Restarts the search loop safely
 
-                print(
-                    f"{Theme.YELLOW}Show name: {show_data['name']}\n"
-                    f"Status: {show_data['status']}\n"
-                    f"Premiered On: {show_data['premiered']}\n"
-                    f"Ended On: {show_ended_status}{Theme.RESET}"
-                )
+                # Now the type checker knows 'raw_shows' is guaranteed to be a valid list[dict[str, Any]]
+                # We can format the raw list into choice dictionaries for InquirerPy
+                show_choices = []
+                for show in raw_shows:
+                    # Use fallback operators in case summary/status text is missing
+                    status = show.get("status") or "Unknown Status"
+                    premiered = show.get("premiered") or "TBA"
 
-                # Re-map seasons data into clear choices dictionary keypairs for InquirerPy
-                season_choices = []
-                for season in seasons_data:
-                    ep_count = season.get("episodeOrder") or "??"
-                    label = f"Season {season['number']} ({ep_count} episodes)"
-                    season_choices.append({"name": label, "value": season})
+                    # Build a descriptive selection label for the user
+                    label = f"{show['name']} ({premiered}) [{status}]"
+                    show_choices.append({"name": label, "value": show})
 
-                # Prompt user to select a season using interactive arrows
-                try:
-                    selected_season = inquirer.select(
-                        message="Select a season to inspect the episode list:",
-                        choices=season_choices,
-                        style=custom_style,
-                    ).execute()
-                except KeyboardInterrupt:
-                    print(f"{Theme.RED}Operation cancelled.{Theme.RESET}")
-                    sys.exit(0)
+                # Step 4: Display returned TV Shows from fuzzy search on TV_Maze
+                selected_show = self.wizard.prompt_show_selection(show_choices)
 
-                # Extract the correct API sequence identifiers directly out of the selected choice value object
-                chosen_season_num: int = selected_season["number"]
+                # Step 5: Display the seasons of the selected show
+                show_id: int = selected_show["id"]
+
+                seasons_choices = self.tvmaze.fetch_show_seasons(show_id)
+
+                if not seasons_choices:
+                    print(f"{Theme.YELLOW}No seasons found for this show. Please try again.{Theme.RESET}")
+                    continue
+
+                selected_season = self.wizard.prompt_season_selection(seasons_choices)
+
+                # Step 6: Display the episodes of the selected season
                 season_id = selected_season["id"]
 
-                # Step 4: Fetch episodes exclusively for that season ID
-                episodes = self.wizard.fetch_season_episodes(season_id)
+                episode_choice = self.tvmaze.fetch_season_episodes_names(season_id)
 
-                # Step 5: Render final episode names from the API payload
-                print(f"{show_data['name']} - Season {chosen_season_num} episode list:")
-                for ep in episodes:
-                    ep_num = ep.get("number")
-                    ep_str = f"{ep_num:02d}" if ep_num is not None else "??"
-                    print(f"{ep_str} - {ep['name']}")
-                print()
+                if not episode_choice:
+                    print(f"{Theme.YELLOW}No episodes found for the {show_name} Season {season_id}")
+                    continue
+
+                manifest_names = [choice["name"] for choice in episode_choice]
+
+                self.wizard.display_episode_manifest(manifest_names)
 
                 # Step 6: Prompt to continue or exit, and capture the action
                 next_action = self.wizard.prompt_continue_or_exit()
@@ -96,4 +94,4 @@ class APIMetadataController:
                 # If they chose "continue", break out of the loop and return the data
                 break
 
-        return show_data, chosen_season_num, episodes
+        return selected_show, season_id, manifest_names

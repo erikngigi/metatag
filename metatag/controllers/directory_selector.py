@@ -5,6 +5,8 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING
 
+from metatag.views.theme import Theme
+
 if TYPE_CHECKING:
     from metatag.views.interactive import InteractiveWizard
 
@@ -21,7 +23,16 @@ class DirectoryController:
         # Define your base start directory explicitly (e.g., Linux Home directory or CWD)
         base_start_dir = os.path.expanduser("/storage/Tv-Shows")  # Resolves to /home/eric
 
-        # 1. Capture the source folder using auto-suggest pathing
-        target_dir = self.wizard.prompt_target_directory(base_start_dir)
+        while True:
+            target_dir = self.wizard.prompt_target_directory(base_start_dir)
+
+            is_confirmed = self.wizard.prompt_confirmation(
+                message=f"Proceed with target directory '{target_dir}'?", default=True
+            )
+
+            if is_confirmed:
+                break
+
+            print(f"{Theme.YELLOW}Select alternate directory..{Theme.RESET}")
 
         return target_dir

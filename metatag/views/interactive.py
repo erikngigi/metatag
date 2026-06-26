@@ -22,7 +22,7 @@ class InteractiveWizard:
     """Manages the step-by-step console setup wizard."""
 
     def __init__(self) -> None:
-        self.tv_maze_url = "https://api.tvmaze.com"
+        pass
 
     def prompt_media_type(self) -> str:
         """Select between TV Shows and Anime."""
@@ -61,31 +61,39 @@ class InteractiveWizard:
 
         return str(show_name.strip())
 
-    def fetch_show_metadata(self, show_name: str) -> tuple[dict, list[dict]]:
-        """Queries TVMaze for the show and returns its metadata and seasons."""
-        search_url = f"{self.tv_maze_url}/singlesearch/shows"
-        show_response = requests.get(search_url, params={"q": show_name})
+    def prompt_show_selection(self, preformatted_choices: list[dict[str, Any]]) -> dict[str, Any]:
+        """Display pre-formatted show choices directly to the user."""
+        try:
+            selected_show: dict[str, Any] = inquirer.select(
+                message="Select a show from the search list:", choices=preformatted_choices, style=custom_style
+            ).execute()
 
-        if show_response.status_code == 404:
-            print(f"{Theme.YELLOW}Could not find any show name '{show_name}' on TVMaze.{Theme.RESET}")
-            sys.exit(1)
+            return selected_show
 
-        show_data = show_response.json()
+        except KeyboardInterrupt:
+            print(f"{Theme.RED}Operation cancelled.{Theme.RESET}")
+            sys.exit(0)
 
-        seasons_url = f"{self.tv_maze_url}/shows/{show_data['id']}/seasons"
-        seasons_response = requests.get(seasons_url)
+    def prompt_season_selection(self, preformatted_choices: list[dict[str, Any]]) -> dict[str, Any]:
+        """Display pre-formatted season choices directly to the user."""
+        try:
+            selected_season: dict[str, Any] = inquirer.select(
+                message="Select a season to inspect the episode list:",
+                choices=preformatted_choices,
+                style=custom_style,
+            ).execute()
 
-        seasons_data = seasons_response.json()
+            return selected_season
 
-        return show_data, seasons_data
+        except KeyboardInterrupt:
+            print(f"{Theme.RED}Operation cancelled.{Theme.RESET}")
+            sys.exit(0)
 
-    def fetch_season_episodes(self, season_id: int) -> list[dict[str, Any]]:
-        """Queries TVMaze for all episodes belonging to a specific season ID."""
-        episodes_url = f"{self.tv_maze_url}/seasons/{season_id}/episodes"
-        season_episode_response = requests.get(episodes_url)
-        season_episode_data: list[dict[str, Any]] = season_episode_response.json()
-
-        return season_episode_data
+    def display_episode_manifest(self, episode_names: list[str]) -> None:
+        """Prints the upcoming target filename layout to the terminal screen."""
+        for name in episode_names:
+            print(f"{Theme.GREEN}->{Theme.RESET} {name}")
+        print()
 
     def prompt_continue_or_exit(self) -> str:
         """Prompts the user to continue to file renaming or exit after viewing the episodes list."""
@@ -93,9 +101,9 @@ class InteractiveWizard:
             next_action = inquirer.select(
                 message="Choose your next action:",
                 choices=[
-                    {"name": "Continue to file renaming", "value": "continue"},
-                    {"name": "Restart", "value": "restart"},
-                    {"name": "Exit", "value": "exit"},
+                    {"name": "Rename Tv Show files", "value": "continue"},
+                    {"name": "Restart Metatag", "value": "restart"},
+                    {"name": "Exit Metatag", "value": "exit"},
                 ],
                 style=custom_style,
             ).execute()
@@ -140,6 +148,14 @@ class InteractiveWizard:
             sys.exit(0)
 
         return str(rename_selection)
+
+    def prompt_confirmation(self, message: str, default: bool = True) -> bool:
+        """A generic reusable confirmation prompt that returns a boolen choice."""
+        try:
+            return bool(inquirer.confirm(message=message, default=default, style=custom_style).execute())
+        except KeyboardInterrupt:
+            print(f"{Theme.RED}Operation cancelled.{Theme.RESET}")
+            sys.exit(0)
 
     def clear_screen(self) -> None:
         """Clears the Linux terminal screen securely using subprocess."""

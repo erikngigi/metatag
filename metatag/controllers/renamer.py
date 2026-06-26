@@ -21,7 +21,7 @@ class FileRenamerController:
             print(f"{Theme.YELLOW}[!] No files provided for renaming module execution.{Theme.RESET}")
             return
 
-        print(f"\n{Theme.BOLD}{Theme.YELLOW}--- Starting Renaming Operations Pipeline ---{Theme.RESET}\n")
+        print(f"\n{Theme.BOLD}{Theme.YELLOW}Renaming {show_name} Season {season_num}{Theme.RESET}\n")
 
         # Track successful adjustments
         renamed_count = 0
@@ -49,8 +49,8 @@ class FileRenamerController:
                 old_path = os.path.join(self.target_dir, old_filename)
                 new_path = os.path.join(self.target_dir, new_filename)
 
-                print(f"{Theme.GREY}From:{old_filename}{Theme.RESET}")
-                print(f"{Theme.GREEN}To:{new_filename}{Theme.RESET}")
+                print(f"{Theme.GREY}{old_filename}{Theme.RESET} -> {Theme.GREEN}{new_filename}{Theme.RESET}")
+                # print(f"{Theme.GREEN}To:{new_filename}{Theme.RESET}")
 
                 if not dry_run:
                     try:
@@ -58,8 +58,8 @@ class FileRenamerController:
                         renamed_count += 1
                     except OSError as e:
                         print(f"{Theme.RED}[!] System error execution failure: {e}{Theme.RESET}")
-                else:
-                    print(f"{Theme.CYAN}[Preview Mode] No alterations executed on disk.{Theme.RESET}")
+                # else:
+                # print(f"{Theme.CYAN}[Preview Mode] No alterations executed on disk.{Theme.RESET}")
             else:
                 print(
                     f"{Theme.YELLOW}[!] Warning: No matching remote metadata index found for: {old_filename}{Theme.RESET}"

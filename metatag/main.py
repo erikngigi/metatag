@@ -13,6 +13,7 @@ from metatag.controllers.api_presenter import APIMetadataController
 from metatag.controllers.directory_selector import DirectoryController
 from metatag.controllers.file_selector import FileSelectorController
 from metatag.controllers.renamer import FileRenamerController
+from metatag.models.tvmaze_model import TVMazeModel
 from metatag.views.interactive import InteractiveWizard
 
 # from metatag.views.theme import Theme
@@ -25,26 +26,27 @@ def main() -> None:
 
     # 2. INTERACTIVE WIZARD PATHWAY
     if args.interactive:
-        # Instantiate the View layer module
+        # 1. Instantiate the Model layer module (Data Engine)
+        tvmaze = TVMazeModel()
+
+        # 2. Instantiate the View layer module (User Interface)
         wizard = InteractiveWizard()
 
         # Inject the View into the Controller layer module (Dependency Injection)
-        api_controller = APIMetadataController(wizard)
+        api_controller = APIMetadataController(wizard=wizard, tvmaze=tvmaze)
 
         # Execute the controller logic pipeline
         show_data, season_num, episodes = api_controller.run()
 
+        print(season_num)
         # ----------------------------------------------------------------------
         # Pipeline B: Local Folder Ingestion & Directory Selection
         # ----------------------------------------------------------------------
-        # print(f"\n{Theme.CYAN} ---Initializing Local Filesystem Setup--- {Theme.RESET}")
 
         # Inject the same view framework into your directory controller
         dir_controller = DirectoryController(wizard)
 
         target_dir = dir_controller.run()
-
-        # print(f"{Theme.CYAN}Selected Directory:{Theme.RESET} {Theme.GREEN}{target_dir}{Theme.RESET}")
 
         # ----------------------------------------------------------------------
         # Pipeline C: Target File Filtering and Inventory List Extraction

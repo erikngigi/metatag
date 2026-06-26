@@ -22,14 +22,11 @@ class FileSelectorController:
         """Runs the interactive file selection loop and maps active matches."""
         file_type_choice = self.wizard.prompt_rename_type()
 
-        VIDEO_EXTENSIONS = (".mp4", ".mkv")
-        SUBTITLE_EXTENSIONS = (".srt",)
-
         if file_type_choice == "video":
-            valid_extensions = VIDEO_EXTENSIONS
+            valid_extensions: tuple[str, ...] = ("mkv", "mp4")
             print(f"\n{Theme.CYAN}Scanning strictly for Video Assests (.mp4, .mkv){Theme.RESET}.")
         else:
-            valid_extensions = SUBTITLE_EXTENSIONS
+            valid_extensions = ("srt",)
             print(f"\n{Theme.CYAN}Scanning strictly for Subtitle Tracking Assests. (.srt){Theme.RESET}.")
 
         try:
