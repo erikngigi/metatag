@@ -6,16 +6,18 @@ gathers choices, and queries the TVMaze API to discover metadata.
 
 from __future__ import annotations
 
-import os
 import subprocess
 import sys
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-import requests
 from InquirerPy import inquirer
+from InquirerPy.separator import Separator
 from InquirerPy.validator import PathValidator
 
 from metatag.views.theme import Theme, custom_style
+
+if TYPE_CHECKING:
+    from metatag.models.schemas.tvmaze import TVEpisodeSchema, TVSeasonSchema, TVShowSchema
 
 
 class InteractiveWizard:
@@ -32,6 +34,7 @@ class InteractiveWizard:
                 choices=[
                     {"name": "  Anime", "value": "anime_series"},
                     {"name": "  TV", "value": "tv_series"},
+                    {"name": "  Exit", "value": "exit"},
                 ],
                 style=custom_style,
             ).execute()
@@ -42,6 +45,10 @@ class InteractiveWizard:
 
         if media_selection == "anime_series":
             print(f"{Theme.YELLOW}Anime support is currently under development.{Theme.RESET}")
+            sys.exit(1)
+
+        elif media_selection == "exit":
+            print(f"{Theme.YELLOW}Exiting Metatag renamer.{Theme.RESET}")
             sys.exit(1)
 
         return str(media_selection)
@@ -61,10 +68,10 @@ class InteractiveWizard:
 
         return str(show_name.strip())
 
-    def prompt_show_selection(self, preformatted_choices: list[dict[str, Any]]) -> dict[str, Any]:
+    def prompt_show_selection(self, preformatted_choices: list[dict[str, Any]]) -> TVShowSchema:
         """Display pre-formatted show choices directly to the user."""
         try:
-            selected_show: dict[str, Any] = inquirer.select(
+            selected_show: TVShowSchema = inquirer.select(
                 message="Select Show:", choices=preformatted_choices, style=custom_style
             ).execute()
 
@@ -74,10 +81,10 @@ class InteractiveWizard:
             print(f"{Theme.RED}Operation cancelled.{Theme.RESET}")
             sys.exit(0)
 
-    def prompt_season_selection(self, preformatted_choices: list[dict[str, Any]]) -> dict[str, Any]:
+    def prompt_season_selection(self, preformatted_choices: list[dict[str, Any]]) -> TVSeasonSchema:
         """Display pre-formatted season choices directly to the user."""
         try:
-            selected_season: dict[str, Any] = inquirer.select(
+            selected_season: TVSeasonSchema = inquirer.select(
                 message="Select Season:",
                 choices=preformatted_choices,
                 style=custom_style,
@@ -92,7 +99,7 @@ class InteractiveWizard:
     def display_episode_manifest(self, episode_names: list[str]) -> None:
         """Prints the upcoming target filename layout to the terminal screen."""
         for name in episode_names:
-            print(f"{Theme.GREEN}->{Theme.RESET} {name}")
+            print(f"{Theme.GREEN}   {Theme.RESET}{name}")
         print()
 
     def prompt_metadata_checkpoint(self) -> str:
@@ -101,9 +108,12 @@ class InteractiveWizard:
             next_action = inquirer.select(
                 message="Choose Next Action:",
                 choices=[
-                    {"name": "󰑕 Rename Files", "value": "continue"},
-                    {"name": "󰜉 Restart Metatag", "value": "restart"},
-                    {"name": "󰩈 Exit Metatag", "value": "exit"},
+                    {"name": "󰑕  Rename Files", "value": "rename"},
+                    Separator("─" * 25),
+                    {"name": "󱇒  Select Another Season", "value": "alternate_season"},
+                    {"name": "󱇒  Search Another Title", "value": "search_again"},
+                    Separator("─" * 25),
+                    {"name": "󰩈  Exit Metatag", "value": "exit"},
                 ],
                 style=custom_style,
             ).execute()
@@ -123,8 +133,9 @@ class InteractiveWizard:
             next_action = inquirer.select(
                 message="Renaming Complete. What would you like to do next?",
                 choices=[
-                    {"name": "󰑕 Run Another Rename Cycle", "value": "search_again"},
-                    {"name": "󰿅 Exit Metatag", "value": "exit"},
+                    {"name": "󰑕  Run Another Rename Cycle", "value": "search_again"},
+                    Separator("─" * 25),
+                    {"name": "󰿅  Exit Metatag", "value": "exit"},
                 ],
                 style=custom_style,
             ).execute()

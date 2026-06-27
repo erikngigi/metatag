@@ -4,10 +4,12 @@ Manages data fetching, network request orchestration, and exception handling
 for interacting with the TVMaze API endpoints.
 """
 
-from typing import Any
+from typing import Any, Optional
 
 import httpx
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
+
+from metatag.models.schemas.tvmaze import TVEpisodeSchema, TVSeasonSchema, TVShowSchema
 
 
 class TVMazeModel:
@@ -35,7 +37,7 @@ class TVMazeModel:
 
         return response
 
-    def fuzzy_search_show(self, show_name: str) -> list[dict[str, Any]] | None:
+    def fuzzy_search_show(self, show_name: str) -> Optional[list[TVShowSchema]]:
         """Queries TVMaze for show data and returns multiple shows information as a list."""
         search_url = f"{self.base_url}/search/shows"
 
@@ -44,29 +46,29 @@ class TVMazeModel:
 
             # Specific Client-Side Route Actions
             if response.status_code == 404:
-                return None
+                return []
 
             # If any other unexpected 4xx error occurs (e.g., 400 Bad Request)
             response.raise_for_status()
 
             raw_results = response.json()
 
-            fuzzy_shows_data = []
+            fuzzy_shows_data: list[TVShowSchema] = []
 
             for item in raw_results:
                 if "show" in item:
-                    fuzzy_shows_data.append(item["show"])
+                    fuzzy_shows_data.append(TVShowSchema(**item["show"]))
 
             return fuzzy_shows_data
 
         except httpx.HTTPStatusError as e:
             print(f"Client Error: {e.response.status_code} while quering TVMaze.")
-            return None
+            return []
         except httpx.HTTPError:
             print("Network Error: TVMaze API is completely unreachable right now.")
-            return None
+            return []
 
-    def fetch_show_seasons(self, show_id: int) -> list[dict[str, Any]]:
+    def fetch_show_seasons(self, show_id: int) -> Optional[list[TVSeasonSchema]]:
         """Retrieves all seasons associated with a specific TV show ID.
 
         Queries the TVMaze '/shows/{id}/seasons' endpoint to collect the complete
@@ -85,26 +87,18 @@ class TVMazeModel:
 
         raw_results = response.json()
 
-        season_choices = []
+        season_choices: list[TVSeasonSchema] = []
 
         for season in raw_results:
-            ep_order = season.get("episodeOrder")
-            ep_count_str = f"{ep_order} episodes" if ep_order is not None else "TBA"
+            # 1. Dictionary unpacking intializes the Pydantic schema
+            season_schema = TVSeasonSchema(**season)
 
-            premiered_raw: str = season.get("premiereDate")
-            ended_raw: str = season.get("endDate")
-
-            start_year = premiered_raw.split("-")[0] if premiered_raw else "TBA"
-            end_year = ended_raw.split("-")[0] if ended_raw else "TBA"
-            year_range = f"{start_year} - {end_year}"
-
-            label = f"Season {season['number']} ({ep_count_str})  ({year_range})"
-
-            season_choices.append({"name": label, "value": season})
+            # 2. Append the validated object instance to your collection list
+            season_choices.append(season_schema)
 
         return season_choices
 
-    def fetch_season_episodes_names(self, season_id: int, show_title: str) -> list[dict[str, Any]]:
+    def fetch_season_episodes_names(self, season_id: int) -> Optional[list[TVEpisodeSchema]]:
         """Retrieves all episodes belonging to a specific season.
 
         Queries the TVMaze '/seasons/{id}/episodes' endpoint to collect the full
@@ -128,21 +122,11 @@ class TVMazeModel:
 
         raw_results = response.json()
 
-        episode_choices = []
+        episode_choices: list[TVEpisodeSchema] = []
 
-        for episode in raw_results:
-            season_num = episode["season"]
-            ep_num = episode.get("number")
-            ep_name = episode.get("name") or "Untitled Episode"
+        for ep in raw_results:
+            episode_schema = TVEpisodeSchema(**ep)
 
-            if ep_num is not None:
-                marker = f"S{season_num:02d}E{ep_num:02d}"
-            else:
-                is_significant = episode.get("type") == "significant_special"
-                marker = f"S{season_num:02d}-SPCL" if is_significant else f"S{season_num:02d}-SHORT"
-
-            label = f"{show_title} {marker} - {ep_name}"
-
-            episode_choices.append({"name": label, "value": episode})
+            episode_choices.append(episode_schema)
 
         return episode_choices
