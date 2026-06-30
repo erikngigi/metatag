@@ -14,10 +14,12 @@ from InquirerPy import inquirer
 from InquirerPy.separator import Separator
 from InquirerPy.validator import PathValidator
 
+from metatag.models.schemas.anime import AnimeSearchQuery
 from metatag.views.theme import Theme, custom_style
 
 if TYPE_CHECKING:
-    from metatag.models.schemas.tvmaze import TVEpisodeSchema, TVSeasonSchema, TVShowSchema
+    from metatag.models.schemas.anime import AnimeDetailsSchema, AnimeEpisodeResponse
+    from metatag.models.schemas.tvmaze import TVSeasonSchema, TVShowSchema
 
 
 class InteractiveWizard:
@@ -43,11 +45,7 @@ class InteractiveWizard:
             print(f"{Theme.RED}Operation Cancelled.{Theme.RESET}")
             sys.exit(0)
 
-        if media_selection == "anime_series":
-            print(f"{Theme.YELLOW}Anime support is currently under development.{Theme.RESET}")
-            sys.exit(1)
-
-        elif media_selection == "exit":
+        if media_selection == "exit":
             print(f"{Theme.YELLOW}Exiting Metatag renamer.{Theme.RESET}")
             sys.exit(1)
 
@@ -99,7 +97,7 @@ class InteractiveWizard:
     def display_episode_manifest(self, episode_names: list[str]) -> None:
         """Prints the upcoming target filename layout to the terminal screen."""
         for name in episode_names:
-            print(f"{Theme.GREEN}   {Theme.RESET}{name}")
+            print(f"{Theme.BLUE}   {Theme.RESET}{name}")
         print()
 
     def prompt_metadata_checkpoint(self) -> str:
@@ -196,6 +194,97 @@ class InteractiveWizard:
             sys.exit(0)
 
         return bool(rename_prompt)
+
+    def prompt_anime_search_filters(self) -> AnimeSearchQuery:
+        """Prompts for show name, format type, and airing status sequentially."""
+        try:
+            # 1. Input for Anime Name
+            anime_name = inquirer.text(
+                message="Enter Anime Name to search:",
+                style=custom_style,
+                validate=lambda text: len(text.strip()) > 0,
+                invalid_message="Search term cannot be empty.",
+            ).execute()
+
+            # 2. Select for Format Type
+            anime_type = inquirer.select(
+                message="Filter by Format Type:",
+                choices=[
+                    {"name": "📺 TV Show", "value": "tv"},
+                    {"name": "🎬 Movie", "value": "movie"},
+                    {"name": "💿 OVA / Special", "value": "ova"},
+                    Separator(),
+                    {"name": "🌐 Any Format", "value": ""},
+                ],
+                style=custom_style,
+                mandatory=True,
+            ).execute()
+
+            # 3. Select for Airing Status
+            anime_status = inquirer.select(
+                message="Filter by Airing Status:",
+                choices=[
+                    {"name": "🏁 Finished Airing", "value": "complete"},
+                    {"name": "📡 Currently Airing", "value": "airing"},
+                    {"name": "📅 Upcoming", "value": "upcoming"},
+                    Separator(),
+                    {"name": "🌐 Any Status", "value": ""},
+                ],
+                style=custom_style,
+                mandatory=True,
+            ).execute()
+
+            return AnimeSearchQuery(
+                anime_name=anime_name.strip(),
+                anime_type=anime_type,
+                anime_status=anime_status,
+            )
+
+        except KeyboardInterrupt:
+            print(f"{Theme.RED}\nOperation cancelled.{Theme.RESET}")
+            sys.exit(1)
+
+    def prompt_anime_selection(self, preformatted_choices: list[dict[str, Any]]) -> AnimeDetailsSchema:
+        """Display pre-formatted show choices directly to the user."""
+        try:
+            total_anime_count = len(preformatted_choices)
+            selected_anime: AnimeDetailsSchema = inquirer.select(
+                message="Select Show:",
+                choices=preformatted_choices,
+                style=custom_style,
+                instruction=f"[Use arrows to navigate, total: {total_anime_count} items]",
+            ).execute()
+
+            return selected_anime
+
+        except KeyboardInterrupt:
+            print(f"{Theme.RED}Operation cancelled.{Theme.RESET}")
+            sys.exit(0)
+
+    def prompt_anime_page_selection(self, max_pages: int) -> int:
+        """Prompts the user to select an explicit page index when viewing multi-page lists.
+
+        Args:
+            max_pages: The maximum number of pages found in the metadata profile.
+
+        Returns:
+            The integer index of the selected page choice.
+        """
+        try:
+            page_choices = [{"name": f"📄 Page {i} of {max_pages}", "value": i} for i in range(1, max_pages + 1)]
+
+            # inquirer.select returns the 'value' key of the chosen dictionary item, which is an integer!
+            selected_page: int = inquirer.select(
+                message="Multiple episode pages found. Select a metadata chunk page to view:",
+                choices=page_choices,
+                default=1,
+            ).execute()
+
+            return selected_page
+
+        except KeyboardInterrupt:
+            print(f"{Theme.RED}Operation cancelled.{Theme.RESET}")
+            sys.exit(0)
 
     def clear_screen(self) -> None:
         """Clears the Linux terminal screen securely using subprocess."""

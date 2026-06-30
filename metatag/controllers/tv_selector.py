@@ -4,10 +4,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+# Imported local pipeline controllers directly into the sub-module context
+from metatag.controllers.directory_selector import DirectoryController
+from metatag.controllers.file_selector import FileSelectorController
+from metatag.controllers.renamer import FileRenamerController
 from metatag.views.theme import Theme
 
 if TYPE_CHECKING:
-    from metatag.models.schemas.tvmaze import TVEpisodeSchema, TVSeasonSchema, TVShowSchema
+    from metatag.models.schemas.tvmaze import TVSeasonSchema, TVShowSchema
     from metatag.models.tvmaze_model import TVMazeModel
     from metatag.views.interactive import InteractiveWizard
 
@@ -19,8 +23,8 @@ class TVSelectorController:
         self.wizard = wizard
         self.tvmaze = tvmaze
 
-    def execute(self) -> tuple[str, int, list[Any]]:
-        """Executes the step-by-step TV selection pipeline."""
+    def execute(self, args: Any) -> None:
+        """Executes the complete step-by-step TV selection and renaming pipeline."""
         while True:
             # Step 1: Get show name from the user
             show_name = self.wizard.prompt_show_name()
@@ -49,7 +53,6 @@ class TVSelectorController:
                     break
 
                 season_choices = []
-
                 for season in seasons_list:
                     choice = {"name": season.summary_label, "value": season}
                     season_choices.append(choice)
@@ -66,7 +69,6 @@ class TVSelectorController:
                     continue
 
                 season_episode_names: list[str] = []
-
                 for episode in selected_season_episodes_list:
                     label = f"{selected_show.name} {episode.marker} - {episode.name}"
                     season_episode_names.append(label)
@@ -78,7 +80,34 @@ class TVSelectorController:
 
                 if next_action == "rename":
                     print(f"\nStart renaming process for {selected_show.name} season {selected_season.number}.\n")
-                    return selected_show.name, selected_season.number, season_episode_names
+
+                    # ─── DECENTRALIZED PIPELINES B, C, & D EXECUTED HERE ───
+                    dir_controller = DirectoryController(self.wizard)
+                    target_dir = dir_controller.run()
+
+                    file_controller = FileSelectorController(self.wizard, target_dir)
+                    files_to_process = file_controller.run()
+
+                    if files_to_process:
+                        renamer = FileRenamerController(
+                            target_dir=target_dir, local_files=files_to_process, remote_episodes=season_episode_names
+                        )
+
+                        # Dry run check
+                        renamer.execute_rename(
+                            show_name=selected_show.name, season_num=selected_season.number, dry_run=True
+                        )
+
+                        if self.wizard.prompt_rename_confirmation():
+                            renamer.execute_rename(
+                                show_name=selected_show.name, season_num=selected_season.number, dry_run=args.dry_run
+                            )
+                            return  # Break completely out of the selection loop on successful execution
+                        else:
+                            print(
+                                f"{Theme.YELLOW}Renaming sequence aborted by user. No files were changed.{Theme.RESET}"
+                            )
+                    return
 
                 elif next_action == "alternate_season":
                     self.wizard.clear_screen()

@@ -13,6 +13,7 @@ from metatag.controllers.api_selector import APISelectorController
 from metatag.controllers.directory_selector import DirectoryController
 from metatag.controllers.file_selector import FileSelectorController
 from metatag.controllers.renamer import FileRenamerController
+from metatag.models.anime_model import AnimeJikanModel
 from metatag.models.tvmaze_model import TVMazeModel
 from metatag.views.interactive import InteractiveWizard
 from metatag.views.theme import Theme
@@ -26,6 +27,7 @@ def main() -> None:
     # 2. INTERACTIVE WIZARD PATHWAY
     if args.interactive:
         # 1. Instantiate the Model layer module (Data Engine)
+        anime = AnimeJikanModel()
         tvmaze = TVMazeModel()
 
         # 2. Instantiate the View layer module (User Interface)
@@ -34,10 +36,20 @@ def main() -> None:
         while True:
             try:
                 # Inject the View into the Controller layer module (Dependency Injection)
-                api_controller = APISelectorController(wizard=wizard, tvmaze=tvmaze)
+                api_controller = APISelectorController(wizard=wizard, anime=anime, tvmaze=tvmaze)
+
+                api_controller.run(args)
+
+                next_move = wizard.prompt_post_rename_options()
+
+                if next_move == "exit":
+                    print(f"{Theme.GREEN}Exiting Metatag. Goodbye.{Theme.RESET}")
+                    break
+
+                wizard.clear_screen()
 
                 # Execute the controller logic pipeline (Returns exact types needed)
-                show_title, season_num, season_episode_list = api_controller.run()
+                # show_title, season_num, season_episode_list = api_result
 
                 # ----------------------------------------------------------------------
                 # Pipeline B: Local Folder Ingestion & Directory Selection
