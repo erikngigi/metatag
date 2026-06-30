@@ -34,10 +34,11 @@ class InteractiveWizard:
             media_selection = inquirer.select(
                 message="Select Media Type:",
                 choices=[
-                    {"name": "  Anime", "value": "anime_series"},
-                    {"name": "  TV", "value": "tv_series"},
-                    {"name": "  Exit", "value": "exit"},
+                    {"name": "1. Anime (Jikan API)", "value": "anime_series"},
+                    {"name": "2. TV (TVMaze API)", "value": "tv_series"},
+                    {"name": "3. Exit Metatag", "value": "exit"},
                 ],
+                long_instruction="To cancel this prompt press, ctrl+c",
                 style=custom_style,
             ).execute()
 
@@ -97,7 +98,7 @@ class InteractiveWizard:
     def display_episode_manifest(self, episode_names: list[str]) -> None:
         """Prints the upcoming target filename layout to the terminal screen."""
         for name in episode_names:
-            print(f"{Theme.BLUE}   {Theme.RESET}{name}")
+            print(f" {name}")
         print()
 
     def prompt_metadata_checkpoint(self) -> str:
@@ -106,12 +107,10 @@ class InteractiveWizard:
             next_action = inquirer.select(
                 message="Choose Next Action:",
                 choices=[
-                    {"name": "󰑕  Rename Files", "value": "rename"},
-                    Separator("─" * 25),
-                    {"name": "󱇒  Select Another Season", "value": "alternate_season"},
-                    {"name": "󱇒  Search Another Title", "value": "search_again"},
-                    Separator("─" * 25),
-                    {"name": "󰩈  Exit Metatag", "value": "exit"},
+                    {"name": "Rename Files", "value": "rename"},
+                    {"name": "Select Another Season", "value": "alternate_season"},
+                    {"name": "Search Another Title", "value": "search_again"},
+                    {"name": "Exit Metatag", "value": "exit"},
                 ],
                 style=custom_style,
             ).execute()
@@ -131,9 +130,8 @@ class InteractiveWizard:
             next_action = inquirer.select(
                 message="Renaming Complete. What would you like to do next?",
                 choices=[
-                    {"name": "󰑕  Run Another Rename Cycle", "value": "search_again"},
-                    Separator("─" * 25),
-                    {"name": "󰿅  Exit Metatag", "value": "exit"},
+                    {"name": "Run Another Rename Cycle", "value": "search_again"},
+                    {"name": "Exit Metatag", "value": "exit"},
                 ],
                 style=custom_style,
             ).execute()
@@ -164,8 +162,8 @@ class InteractiveWizard:
             rename_selection = inquirer.select(
                 message="Select Filetype:",
                 choices=[
-                    {"name": " mkv/mp4", "value": "video"},
-                    {"name": "󰨖 srt", "value": "subtitle"},
+                    {"name": "mkv/mp4", "value": "video"},
+                    {"name": "srt", "value": "subtitle"},
                 ],
                 style=custom_style,
             ).execute()
@@ -210,12 +208,12 @@ class InteractiveWizard:
             anime_type = inquirer.select(
                 message="Filter by Format Type:",
                 choices=[
-                    {"name": "📺 TV Show", "value": "tv"},
-                    {"name": "🎬 Movie", "value": "movie"},
-                    {"name": "💿 OVA / Special", "value": "ova"},
-                    Separator(),
-                    {"name": "🌐 Any Format", "value": ""},
+                    {"name": "1. Any Format", "value": ""},
+                    {"name": "2. Movie", "value": "movie"},
+                    {"name": "3. OVA / Special", "value": "ova"},
+                    {"name": "4. TV Show", "value": "tv"},
                 ],
+                long_instruction="To cancel this prompt press, ctrl+c",
                 style=custom_style,
                 mandatory=True,
             ).execute()
@@ -224,12 +222,12 @@ class InteractiveWizard:
             anime_status = inquirer.select(
                 message="Filter by Airing Status:",
                 choices=[
-                    {"name": "🏁 Finished Airing", "value": "complete"},
-                    {"name": "📡 Currently Airing", "value": "airing"},
-                    {"name": "📅 Upcoming", "value": "upcoming"},
-                    Separator(),
-                    {"name": "🌐 Any Status", "value": ""},
+                    {"name": "1. Any Status", "value": ""},
+                    {"name": "2. Currently Airing", "value": "airing"},
+                    {"name": "3. Finished Airing", "value": "complete"},
+                    {"name": "4. Upcoming", "value": "upcoming"},
                 ],
+                long_instruction="To cancel this prompt press, ctrl+c",
                 style=custom_style,
                 mandatory=True,
             ).execute()
@@ -252,7 +250,8 @@ class InteractiveWizard:
                 message="Select Show:",
                 choices=preformatted_choices,
                 style=custom_style,
-                instruction=f"[Use arrows to navigate, total: {total_anime_count} items]",
+                instruction=f"[Use arrows to navigate] Items: {total_anime_count}/{total_anime_count}",
+                long_instruction="To cancel this prompt press, ctrl+c",
             ).execute()
 
             return selected_anime
@@ -271,7 +270,7 @@ class InteractiveWizard:
             The integer index of the selected page choice.
         """
         try:
-            page_choices = [{"name": f"📄 Page {i} of {max_pages}", "value": i} for i in range(1, max_pages + 1)]
+            page_choices = [{"name": f"Page {i} of {max_pages}", "value": i} for i in range(1, max_pages + 1)]
 
             # inquirer.select returns the 'value' key of the chosen dictionary item, which is an integer!
             selected_page: int = inquirer.select(

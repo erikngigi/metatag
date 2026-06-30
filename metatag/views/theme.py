@@ -19,7 +19,8 @@ custom_style = InquirerPyStyle(
         "answered_question": "#ffffff",  # The message text after the prompt is answered
         "validator": "#ff6b6b bold",  # Inline validation error text
         "highlighted": "#FF8800",  # The choice currently under the cursor
-        "instruction": "#c0c0c0 italic",  # Secondary hint text e.g. "(Use arrow keys)"
+        "instruction": "#808080",  # Secondary hint text e.g. "(Use arrow keys)"
+        "long_instruction": "#808080",  # Secondary hint text e.g. "(Use arrow keys)"
     }
 )
 

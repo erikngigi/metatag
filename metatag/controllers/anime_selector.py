@@ -78,7 +78,7 @@ class AnimeSelectorController:
 
         for index, episode in enumerate(target_episode_list, start=start_index):
             # Using 1-based continuous absolute indexing typical for anime naming conventions
-            label = f"Episode {index:02d} - {episode.title}"
+            label = f"{index:02d} - {episode.title}"
             selected_anime_episode_names.append(label)
 
         self.wizard.display_episode_manifest(selected_anime_episode_names)
