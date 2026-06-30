@@ -110,8 +110,10 @@ class AnimeJikanModel:
         """
         anime_episodes_url = f"{self.base_url}/anime/{anime_mal_id}/episodes"
 
+        params = {"page": page}
+
         try:
-            response = self._make_request(anime_episodes_url, params={"page": page})
+            response = self._make_request(anime_episodes_url, params=params)
 
             if response.status_code == 404:
                 return None
@@ -121,7 +123,7 @@ class AnimeJikanModel:
 
             page_response = AnimeEpisodeResponse.model_validate(raw_payload)
 
-            return page_response.data, page_response.pagination.has_next_page
+            return page_response.data, page_response.pagination.last_visible_page
 
         except httpx.HTTPStatusError as e:
             print(f"Client Error: {e.response.status_code} while querying Jikan episodes.")
