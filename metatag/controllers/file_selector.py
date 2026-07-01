@@ -5,34 +5,34 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING
 
-from metatag.views.theme import Theme
+from metatag.colors import colors, cprint
 
 if TYPE_CHECKING:
-    from metatag.views.interactive import InteractiveWizard
+    from metatag.views.base_menu import BaseMenuView
 
 
 class FileSelectorController:
     """Orchestrates gathering user filtering intent and scanning local storage."""
 
-    def __init__(self, wizard: InteractiveWizard, target_dir: str) -> None:
-        self.wizard = wizard
+    def __init__(self, base_menu: BaseMenuView, target_dir: str) -> None:
+        self.base_menu = base_menu
         self.target_dir = target_dir
 
     def run(self) -> list[str]:
         """Runs the interactive file selection loop and maps active matches."""
-        file_type_choice = self.wizard.prompt_rename_type()
+        file_type_choice = self.base_menu.prompt_filetype_rename()
 
         if file_type_choice == "video":
             valid_extensions: tuple[str, ...] = ("mkv", "mp4")
-            print(f"\n{Theme.CYAN}Scanning strictly for Video Assests (.mp4, .mkv){Theme.RESET}.")
+            cprint(colors.CYAN, "Scanning strictly for video assets. ('mp4', 'mkv')")
         else:
             valid_extensions = ("srt",)
-            print(f"\n{Theme.CYAN}Scanning strictly for Subtitle Tracking Assests. (.srt){Theme.RESET}.")
+            cprint(colors.CYAN, "Scanning strictly for subtitle assets. ('srt')")
 
         try:
             all_entries = os.listdir(self.target_dir)
         except OSError as e:
-            print(f"{Theme.RED}Failed to read directory: {e}{Theme.RESET}")
+            cprint(colors.RED, f"Failed to read the directory: {e}")
             return []
 
         selected_files = [
@@ -44,10 +44,10 @@ class FileSelectorController:
         selected_files.sort()
 
         if not selected_files:
-            print(f"{Theme.YELLOW}No matching {file_type_choice} files discovered in the workspace.{Theme.RESET}")
+            cprint(colors.YELLOW, f"No matching {file_type_choice} files discovered.")
         else:
-            print(f"{Theme.GREEN}Succesfully indexed {len(selected_files)} target files(s):{Theme.RESET}")
+            cprint(colors.GREEN, f"Succesfully indexed {len(selected_files)} target files:")
             for index, file in enumerate(selected_files, start=1):
-                print(f"  {index:02d}. {file}")
+                cprint(f" {index:02d}. {file}")
 
         return selected_files

@@ -9,14 +9,16 @@ from __future__ import annotations
 import sys
 
 from metatag.cli import parse_arguments
+from metatag.colors import colors, cprint
 from metatag.controllers.api_selector import APISelectorController
 from metatag.controllers.directory_selector import DirectoryController
 from metatag.controllers.file_selector import FileSelectorController
 from metatag.controllers.renamer import FileRenamerController
 from metatag.models.anime_model import AnimeJikanModel
 from metatag.models.tvmaze_model import TVMazeModel
-from metatag.views.interactive import InteractiveWizard
-from metatag.views.theme import Theme
+from metatag.views.anime_menu import AnimeMenuView
+from metatag.views.base_menu import BaseMenuView
+from metatag.views.tv_menu import TVMenuView
 
 
 def main() -> None:
@@ -31,22 +33,26 @@ def main() -> None:
         tvmaze = TVMazeModel()
 
         # 2. Instantiate the View layer module (User Interface)
-        wizard = InteractiveWizard()
+        base_menu = BaseMenuView()
+        anime_menu = AnimeMenuView()
+        tvmenu = TVMenuView()
 
         while True:
             try:
                 # Inject the View into the Controller layer module (Dependency Injection)
-                api_controller = APISelectorController(wizard=wizard, anime=anime, tvmaze=tvmaze)
+                api_controller = APISelectorController(
+                    base_menu=base_menu, anime=anime, anime_menu=anime_menu, tvmaze=tvmaze, tvmenu=tvmenu
+                )
 
                 api_controller.run(args)
 
-                next_move = wizard.prompt_post_rename_options()
+                next_move = base_menu.prompt_post_rename_options()
 
                 if next_move == "exit":
-                    print(f"{Theme.GREEN}Exiting Metatag. Goodbye.{Theme.RESET}")
+                    cprint(colors.YELLOW, "Exiting Metatag. Goodbye.")
                     break
 
-                wizard.clear_screen()
+                base_menu.clear_screen()
 
                 # Execute the controller logic pipeline (Returns exact types needed)
                 # show_title, season_num, season_episode_list = api_result

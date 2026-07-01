@@ -5,51 +5,55 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 # Imported local pipeline controllers directly into the sub-module context
+from metatag.colors import colors, cprint
 from metatag.controllers.directory_selector import DirectoryController
 from metatag.controllers.file_selector import FileSelectorController
 from metatag.controllers.renamer import FileRenamerController
-from metatag.views.theme import Theme
 
 if TYPE_CHECKING:
     from metatag.models.schemas.tvmaze import TVSeasonSchema, TVShowSchema
     from metatag.models.tvmaze_model import TVMazeModel
-    from metatag.views.interactive import InteractiveWizard
+    from metatag.views.base_menu import BaseMenuView
+    from metatag.views.tv_menu import TVMenuView
 
 
 class TVSelectorController:
     """Manages the interactive selection loop specifically for TV series using TVMaze API."""
 
-    def __init__(self, wizard: InteractiveWizard, tvmaze: TVMazeModel) -> None:
-        self.wizard = wizard
+    def __init__(self, base_menu: BaseMenuView, tvmaze: TVMazeModel, tvmenu: TVMenuView) -> None:
+        self.base_menu = base_menu
         self.tvmaze = tvmaze
+        self.tvmenu = tvmenu
 
     def execute(self, args: Any) -> None:
         """Executes the complete step-by-step TV selection and renaming pipeline."""
         while True:
             # Step 1: Get show name from the user
-            show_name = self.wizard.prompt_show_name()
+            # show_name = self.wizard.prompt_show_name()
+            show_name = self.tvmenu.prompt_show_name()
 
             # Step 2: Fuzzy search using TVMaze Model
             fuzzy_search_shows = self.tvmaze.fuzzy_search_show(show_name)
 
             if not fuzzy_search_shows:
-                print(f"{Theme.YELLOW}No shows found matching '{show_name}'. Please try again.{Theme.RESET}")
+                cprint(colors.YELLOW, f"No shows found matching the pattern '{show_name}'.")
                 continue
 
             # Step 3: Format and prompt for show selection
             show_choices = []
             for show in fuzzy_search_shows:
-                label = f"󰑈 {show.name} ({show.year_range})   {show.language} [{show.status}]"
+                label = f"{show.name} ({show.year_range})"
                 show_choices.append({"name": label, "value": show})
 
-            selected_show: TVShowSchema = self.wizard.prompt_show_selection(show_choices)
+            # selected_show: TVShowSchema = self.wizard.prompt_show_selection(show_choices)
+            selected_show: TVShowSchema = self.tvmenu.prompt_show_selection(show_choices)
 
             while True:
                 # Step 4: Fetch and selected seasons
                 seasons_list = self.tvmaze.fetch_show_seasons(selected_show.id)
 
                 if not seasons_list:
-                    print(f"{Theme.YELLOW}No seasons found for this show. Please try again.{Theme.RESET}")
+                    cprint(colors.YELLOW, "No season/seasons found for this show.")
                     break
 
                 season_choices = []
@@ -57,15 +61,14 @@ class TVSelectorController:
                     choice = {"name": season.summary_label, "value": season}
                     season_choices.append(choice)
 
-                selected_season: TVSeasonSchema = self.wizard.prompt_season_selection(season_choices)
+                # selected_season: TVSeasonSchema = self.wizard.prompt_season_selection(season_choices)
+                selected_season: TVSeasonSchema = self.tvmenu.prompt_season_selection(season_choices)
 
                 # Step 5: Fetch episode manifest of each season
                 selected_season_episodes_list = self.tvmaze.fetch_season_episodes_names(selected_season.id)
 
                 if not selected_season_episodes_list:
-                    print(
-                        f"{Theme.YELLOW}No episodes found for {selected_show.name} Season {selected_season.number}.{Theme.RESET}"
-                    )
+                    cprint(colors.YELLOW, f"No episodes found for {selected_show.name}.")
                     continue
 
                 season_episode_names: list[str] = []
@@ -73,19 +76,20 @@ class TVSelectorController:
                     label = f"{selected_show.name} {episode.marker} - {episode.name}"
                     season_episode_names.append(label)
 
-                self.wizard.display_episode_manifest(season_episode_names)
+                # self.wizard.display_episode_manifest(season_episode_names)
+                self.base_menu.print_episodes(season_episode_names)
 
                 # Step 6: Loop control
-                next_action = self.wizard.prompt_metadata_checkpoint()
+                next_action = self.tvmenu.prompt_metadata_checkpoint()
 
                 if next_action == "rename":
                     print(f"\nStart renaming process for {selected_show.name} season {selected_season.number}.\n")
 
                     # ─── DECENTRALIZED PIPELINES B, C, & D EXECUTED HERE ───
-                    dir_controller = DirectoryController(self.wizard)
+                    dir_controller = DirectoryController(self.base_menu)
                     target_dir = dir_controller.run()
 
-                    file_controller = FileSelectorController(self.wizard, target_dir)
+                    file_controller = FileSelectorController(self.base_menu, target_dir)
                     files_to_process = file_controller.run()
 
                     if files_to_process:
@@ -98,23 +102,24 @@ class TVSelectorController:
                             show_name=selected_show.name, season_num=selected_season.number, dry_run=True
                         )
 
-                        if self.wizard.prompt_rename_confirmation():
+                        if self.base_menu.prompt_confirmation(
+                            message="Do you want to proceed with renaming these files?",
+                            default=False,
+                        ):
                             renamer.execute_rename(
                                 show_name=selected_show.name, season_num=selected_season.number, dry_run=args.dry_run
                             )
                             return  # Break completely out of the selection loop on successful execution
                         else:
-                            print(
-                                f"{Theme.YELLOW}Renaming sequence aborted by user. No files were changed.{Theme.RESET}"
-                            )
+                            cprint(colors.YELLOW, "Renaming sequence aborted by user. No files were changed.")
                     return
 
                 elif next_action == "alternate_season":
-                    self.wizard.clear_screen()
-                    print(f"{Theme.CYAN}Reloading Seasons List for {selected_show.name}.{Theme.RESET}")
+                    self.base_menu.clear_screen()
+                    cprint(colors.CYAN, f"Reloading {selected_show.name} seasons list.")
                     continue
 
                 elif next_action == "search_again":
-                    self.wizard.clear_screen()
-                    print(f"{Theme.GREY}Search for TV Show{Theme.RESET}")
+                    self.base_menu.clear_screen()
+                    cprint(colors.GREY, "Search for TV Show.")
                     break

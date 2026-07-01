@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 
-from metatag.views.theme import Theme
+from metatag.colors import colors, cprint
 
 
 class FileRenamerController:
@@ -18,18 +18,19 @@ class FileRenamerController:
     def execute_rename(self, show_name: str, season_num: int, dry_run: bool = False) -> None:
         """Matches local file numbers to remote metadata lists and alters names on disk."""
         if not self.local_files:
-            print(f"{Theme.YELLOW}[!] No files provided for renaming module execution.{Theme.RESET}")
+            cprint(colors.YELLOW, "No files provided for renaming module execution.")
             return
 
         if len(self.local_files) != len(self.remote_episodes):
-            print(
-                f"{Theme.BOLD}{Theme.RED}[] Critial Error: Count mismatch detected!{Theme.RESET}\n"
-                f"{Theme.YELLOW}Local files: {len(self.local_files)} -- API episodes: {len(self.remote_episodes)}\n"
-                f"Execution aborted to prevent corrupted indexing.{Theme.RESET}"
+            cprint(
+                colors.YELLOW,
+                "Critial Error: Count mismatch detected!\n"
+                f"Local files: {len(self.local_files)} -- API episodes: {len(self.remote_episodes)}\n"
+                f"Execution aborted to prevent corrupted indexing.",
             )
             return
 
-        print(f"\n{Theme.BOLD}{Theme.YELLOW}Renaming {show_name} Season {season_num}{Theme.RESET}\n")
+        cprint(colors.YELLOW, f"Renaming {show_name} Season {season_num}.\n")
 
         # Track successful adjustments
         renamed_count = 0
@@ -51,19 +52,15 @@ class FileRenamerController:
                 old_path = os.path.join(self.target_dir, old_filename)
                 new_path = os.path.join(self.target_dir, new_filename)
 
-                print(f"{Theme.GREY}{old_filename}{Theme.RESET} -> {Theme.GREEN}{new_filename}{Theme.RESET}")
+                cprint(colors.CYAN, f"{old_filename} -> {new_filename}")
 
                 if not dry_run:
                     try:
                         os.rename(old_path, new_path)
                         renamed_count += 1
                     except OSError as e:
-                        print(f"{Theme.RED}System error execution failure: {e}{Theme.RESET}")
+                        cprint(colors.RED, f"System error execution failure: {e}")
             else:
-                print(
-                    f"{Theme.YELLOW}Warning: No matching remote metadata index found for: {old_filename}{Theme.RESET}"
-                )
+                cprint(colors.YELLOW, f"Warning: No matching remote metadata index found for: {old_filename}.")
 
-        print(
-            f"\n{Theme.GREEN}Renaming execution cycle finalized! Successfully altered {renamed_count} asset file paths.{Theme.RESET}"
-        )
+        cprint(f"\nRenaming execution cycle finalized! Successfully altered {renamed_count} asset file paths.")

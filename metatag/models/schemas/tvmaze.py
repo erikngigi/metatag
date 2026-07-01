@@ -84,9 +84,10 @@ class TVSeasonSchema(BaseModel):
     def summary_label(self) -> str:
         """Generates the clean UI text string out of validated properties."""
         ep_count_str = f"{self.episodeOrder} episodes" if self.episodeOrder is not None else "TBA"
-        start_year = self.premiereDate.split("-")[0] if self.premiereDate else "TBA"
-        end_year = self.endDate.split("-")[0] if self.endDate else "TBA"
-        return f"Season {self.number} ({ep_count_str})  ({start_year} - {end_year})"
+        # start_year = self.premiereDate.split("-")[0] if self.premiereDate else "TBA"
+        # end_year = self.endDate.split("-")[0] if self.endDate else "TBA"
+        # return f"Season {self.number} ({ep_count_str})  ({start_year} - {end_year})"
+        return f"Season {self.number} ({ep_count_str})"
 
 
 class TVEpisodeSchema(BaseModel):
