@@ -83,9 +83,6 @@ class TVSelectorController:
                 next_action = self.tvmenu.prompt_metadata_checkpoint()
 
                 if next_action == "rename":
-                    print(f"\nStart renaming process for {selected_show.name} season {selected_season.number}.\n")
-
-                    # ─── DECENTRALIZED PIPELINES B, C, & D EXECUTED HERE ───
                     dir_controller = DirectoryController(self.base_menu)
                     target_dir = dir_controller.run()
 
@@ -98,21 +95,28 @@ class TVSelectorController:
                         )
 
                         # Dry run check
-                        renamer.execute_rename(
-                            show_name=selected_show.name, season_num=selected_season.number, dry_run=True
-                        )
-
-                        if self.base_menu.prompt_confirmation(
-                            message="Do you want to proceed with renaming these files?",
-                            default=False,
-                        ):
+                        if getattr(args, "dry_run", False):
                             renamer.execute_rename(
-                                show_name=selected_show.name, season_num=selected_season.number, dry_run=args.dry_run
+                                show_name=selected_show.name, season_num=selected_season.number, dry_run=True
                             )
-                            return  # Break completely out of the selection loop on successful execution
+
                         else:
-                            cprint(colors.YELLOW, "Renaming sequence aborted by user. No files were changed.")
-                    return
+                            renamer.execute_rename(
+                                show_name=selected_show.name, season_num=selected_season.number, dry_run=True
+                            )
+
+                            if self.base_menu.prompt_confirmation(
+                                message="Do you want to proceed with renaming these files?",
+                                default=False,
+                            ):
+                                renamer.execute_rename(
+                                    show_name=selected_show.name,
+                                    season_num=selected_season.number,
+                                    dry_run=args.dry_run,
+                                )
+                            else:
+                                cprint(colors.YELLOW, "Renaming sequence aborted by user. No files were changed.")
+                        return
 
                 elif next_action == "alternate_season":
                     self.base_menu.clear_screen()

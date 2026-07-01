@@ -30,7 +30,7 @@ class FileRenamerController:
             )
             return
 
-        cprint(colors.YELLOW, f"Renaming {show_name} Season {season_num}.\n")
+        cprint(colors.CYAN, f"\nRenaming {show_name} Season {season_num}.")
 
         # Track successful adjustments
         renamed_count = 0
@@ -38,7 +38,7 @@ class FileRenamerController:
         # Loop through local files and attempt a strict index alignment map
         for index, old_filename in enumerate(self.local_files):
             # Extract extension (.mp4, .mkv, .srt) dynamically
-            name_part, extension = os.path.splitext(old_filename)
+            _, extension = os.path.splitext(old_filename)
 
             # Check if we have a matching remote API episode entry for this positional sequence
             if index < len(self.remote_episodes):
@@ -52,7 +52,7 @@ class FileRenamerController:
                 old_path = os.path.join(self.target_dir, old_filename)
                 new_path = os.path.join(self.target_dir, new_filename)
 
-                cprint(colors.CYAN, f"{old_filename} -> {new_filename}")
+                cprint(colors.GREY, f" {old_filename} -> {new_filename}")
 
                 if not dry_run:
                     try:
@@ -64,3 +64,11 @@ class FileRenamerController:
                 cprint(colors.YELLOW, f"Warning: No matching remote metadata index found for: {old_filename}.")
 
         cprint(f"\nRenaming execution cycle finalized! Successfully altered {renamed_count} asset file paths.")
+
+        if dry_run:
+            cprint(colors.CYAN, "\nDry Run Complete. No files were permanently altered on disk.\n")
+        else:
+            cprint(
+                colors.GREEN,
+                f"\nRenaming execution cycle finalized! Successfully altered {renamed_count} asset file paths.",
+            )

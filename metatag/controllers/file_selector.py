@@ -24,10 +24,8 @@ class FileSelectorController:
 
         if file_type_choice == "video":
             valid_extensions: tuple[str, ...] = ("mkv", "mp4")
-            cprint(colors.CYAN, "Scanning strictly for video assets. ('mp4', 'mkv')")
         else:
             valid_extensions = ("srt",)
-            cprint(colors.CYAN, "Scanning strictly for subtitle assets. ('srt')")
 
         try:
             all_entries = os.listdir(self.target_dir)
@@ -41,12 +39,15 @@ class FileSelectorController:
             if os.path.isfile(os.path.join(self.target_dir, filename)) and filename.lower().endswith(valid_extensions)
         ]
 
-        selected_files.sort()
+        target_dir_items = len(selected_files)
 
         if not selected_files:
             cprint(colors.YELLOW, f"No matching {file_type_choice} files discovered.")
         else:
-            cprint(colors.GREEN, f"Succesfully indexed {len(selected_files)} target files:")
+            cprint(
+                colors.CYAN,
+                f"\nFiles indexed in the directory '{self.target_dir}'. Items [{target_dir_items}/{target_dir_items}]",
+            )
             for index, file in enumerate(selected_files, start=1):
                 cprint(f" {index:02d}. {file}")
 

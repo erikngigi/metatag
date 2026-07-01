@@ -87,7 +87,7 @@ class BaseMenuView:
 
         return rename_filetype_selection
 
-    def prompt_confirmation(self, message: str, default: bool = True) -> bool:
+    def prompt_confirmation(self, message: str, default: bool) -> bool:
         """A generic reusable confirmation prompt that returns a boolen choice."""
         return bool(self._safe_prompt(lambda: inquirer.confirm(message=message, default=default, style=self.style)))
 

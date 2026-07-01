@@ -11,9 +11,6 @@ import sys
 from metatag.cli import parse_arguments
 from metatag.colors import colors, cprint
 from metatag.controllers.api_selector import APISelectorController
-from metatag.controllers.directory_selector import DirectoryController
-from metatag.controllers.file_selector import FileSelectorController
-from metatag.controllers.renamer import FileRenamerController
 from metatag.models.anime_model import AnimeJikanModel
 from metatag.models.tvmaze_model import TVMazeModel
 from metatag.views.anime_menu import AnimeMenuView
@@ -54,47 +51,8 @@ def main() -> None:
 
                 base_menu.clear_screen()
 
-                # Execute the controller logic pipeline (Returns exact types needed)
-                # show_title, season_num, season_episode_list = api_result
-
-                # ----------------------------------------------------------------------
-                # Pipeline B: Local Folder Ingestion & Directory Selection
-                # ----------------------------------------------------------------------
-                dir_controller = DirectoryController(wizard)
-                target_dir = dir_controller.run()
-
-                # ----------------------------------------------------------------------
-                # Pipeline C: Target File Filtering and Inventory List Extraction
-                # ----------------------------------------------------------------------
-                file_controller = FileSelectorController(wizard, target_dir)
-                files_to_process = file_controller.run()
-
-                # ----------------------------------------------------------------------
-                # Pipeline D: File System Execution Sequence
-                # ----------------------------------------------------------------------
-                # ----------------------------------------------------------------------
-                if files_to_process:
-                    renamer = FileRenamerController(
-                        target_dir=target_dir, local_files=files_to_process, remote_episodes=season_episode_list
-                    )
-
-                renamer.execute_rename(show_name=show_title, season_num=season_num, dry_run=True)
-
-                if wizard.prompt_rename_confirmation():
-                    renamer.execute_rename(show_name=show_title, season_num=season_num, dry_run=args.dry_run)
-                else:
-                    print(f"{Theme.YELLOW}Renaming sequence aborted by user. No files were changed.{Theme.RESET}")
-
-                next_move = wizard.prompt_post_rename_options()
-
-                if next_move == "exit":
-                    print(f"{Theme.GREEN}Exiting Metatag. Goodbye.{Theme.RESET}")
-                    break
-
-                wizard.clear_screen()
-
             except KeyboardInterrupt:
-                print(f"{Theme.YELLOW}Execution interrupted by user. Exiting Metatag.")
+                cprint(colors.YELLOW, "Execution interrupted by user. Exiting Metatag.")
                 break
 
         sys.exit(0)
@@ -103,7 +61,8 @@ def main() -> None:
     # Since positional arguments are currently disabled in cli.py, running
     # the application without any flags would cause it to silently do nothing.
     # This block provides a helpful message guiding users to the interactive flag.
-    print(
+    cprint(
+        colors.CYAN,
         "Welcome to metatag!\n"
         "Standard file system mode is temporarily offline for maintenance.\n"
         "Please launch the interactive metadata explorer using:\n\n"
