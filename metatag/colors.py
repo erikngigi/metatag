@@ -4,14 +4,14 @@ from InquirerPy.utils import InquirerPyStyle
 
 custom_style = InquirerPyStyle(
     {
-        "questionmark": "#00bbff bold",
-        "question": "#00bbff bold",
+        "questionmark": "#45F705 bold",
+        "question": "#ffffff bold",
         "input": "#ffffff",
-        "pointer": "#00bbff",
+        "pointer": "#45F705",
         "choice": "#ffffff",
-        "selected": "#00bbff",
+        "selected": "#45F705",
         "separator": "#add8e6",
-        "answer": "#00bbff",  # The committed selection shown after choosing
+        "answer": "#45F705",  # The committed selection shown after choosing
         "answered_question": "#ffffff",  # The message text after the prompt is answered
         "validator": "#ff6b6b bold",  # Inline validation error text
         "highlighted": "#FF8800",  # The choice currently under the cursor

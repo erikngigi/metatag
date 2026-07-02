@@ -10,7 +10,7 @@ import sys
 
 from metatag.cli import parse_arguments
 from metatag.colors import colors, cprint
-from metatag.controllers.api_selector import APISelectorController
+from metatag.controllers.workflow_router import APISelectorController
 from metatag.models.anime_model import AnimeJikanModel
 from metatag.models.tvmaze_model import TVMazeModel
 from metatag.views.anime_menu import AnimeMenuView

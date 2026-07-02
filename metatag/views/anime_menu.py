@@ -5,6 +5,7 @@ to anime libraries. It extends `BaseMenuView` to handle absolute episode
 number formats, pagination, and specialized search filters.
 """
 
+import sys
 from typing import TYPE_CHECKING, Any
 
 from InquirerPy import inquirer
@@ -99,3 +100,29 @@ class AnimeMenuView(BaseMenuView):
         )
 
         return selected_page
+
+    def prompt_anime_checkpoint(self) -> str:
+        """Prompts the user for their next action after displaying the Anime episode manifest.
+
+        Allows the user to proceed with file renaming, revert to selecting an alternate
+        episode page for the current anime, search for a different title, or exit.
+        """
+        next_action: str = self._safe_prompt(
+            lambda: inquirer.select(
+                message="Choose next action:",
+                choices=[
+                    {"name": "Rename anime files", "value": "rename"},
+                    {"name": "Select alternate page", "value": "alternate_page"},
+                    {"name": "Search alternate anime", "value": "search_again"},
+                    {"name": "Exit", "value": "exit"},
+                ],
+                style=self.style,
+            ).execute(),
+            exit_code=0,
+        )
+
+        if next_action == "exit":
+            cprint(colors.RED, "Operation cancelled.")
+            sys.exit(1)
+
+        return next_action

@@ -48,16 +48,20 @@ class TVMenuView(BaseMenuView):
 
         return selected_seasons
 
-    def prompt_metadata_checkpoint(self) -> str:
-        """Prompts the user to continue based on the options provided after viewing episodes list."""
+    def prompt_tv_checkpoint(self) -> str:
+        """Prompts the user for their next action after displayinh the TV season episodes.
+
+        Allows the user to proceed with file renaming, revert to selecting an alternate
+        season for the current show, search for a different title, or exit.
+        """
         next_action: str = self._safe_prompt(
             lambda: inquirer.select(
                 message="Choose next action:",
                 choices=[
-                    {"name": "Rename Files", "value": "rename"},
-                    {"name": "Select Another Season", "value": "alternate_season"},
-                    {"name": "Search Another Title", "value": "search_again"},
-                    {"name": "Exit Metatag", "value": "exit"},
+                    {"name": "Rename tv files", "value": "rename"},
+                    {"name": "Select alternate season", "value": "alternate_season"},
+                    {"name": "Search alternate tv show", "value": "search_again"},
+                    {"name": "Exit", "value": "exit"},
                 ],
                 style=self.style,
             ).execute(),

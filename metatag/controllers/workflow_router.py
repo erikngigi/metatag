@@ -9,8 +9,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from metatag.colors import colors, cprint
-from metatag.controllers.anime_selector import AnimeSelectorController
-from metatag.controllers.tv_selector import TVSelectorController
+from metatag.controllers.anime.workflow import AnimeSelectorController
+from metatag.controllers.tv.workflow import TVSelectorController
 
 if TYPE_CHECKING:
     from metatag.models.anime_model import AnimeJikanModel

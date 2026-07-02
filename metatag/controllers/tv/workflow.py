@@ -1,14 +1,12 @@
 """TV Series Metadata Selector Controller."""
 
-from __future__ import annotations
-
 from typing import TYPE_CHECKING, Any
 
 # Imported local pipeline controllers directly into the sub-module context
 from metatag.colors import colors, cprint
 from metatag.controllers.directory_selector import DirectoryController
 from metatag.controllers.file_selector import FileSelectorController
-from metatag.controllers.renamer import FileRenamerController
+from metatag.controllers.tv.renamer import TVRenamerController
 
 if TYPE_CHECKING:
     from metatag.models.schemas.tvmaze import TVSeasonSchema, TVShowSchema
@@ -29,7 +27,6 @@ class TVSelectorController:
         """Executes the complete step-by-step TV selection and renaming pipeline."""
         while True:
             # Step 1: Get show name from the user
-            # show_name = self.wizard.prompt_show_name()
             show_name = self.tvmenu.prompt_show_name()
 
             # Step 2: Fuzzy search using TVMaze Model
@@ -80,42 +77,50 @@ class TVSelectorController:
                 self.base_menu.print_episodes(season_episode_names)
 
                 # Step 6: Loop control
-                next_action = self.tvmenu.prompt_metadata_checkpoint()
+                next_action = self.tvmenu.prompt_tv_checkpoint()
 
                 if next_action == "rename":
+                    selected_episode_manifest = self.base_menu.prompt_episode_selection(season_episode_names)
+
+                    if not selected_episode_manifest:
+                        cprint(colors.YELLOW, "No remote episodes selected. Aborting rename phase.")
+                        continue
+
                     dir_controller = DirectoryController(self.base_menu)
                     target_dir = dir_controller.run()
 
                     file_controller = FileSelectorController(self.base_menu, target_dir)
                     files_to_process = file_controller.run()
 
+                    tv_renamer = TVRenamerController(
+                        target_dir=target_dir, local_files=files_to_process, episode_manifest=selected_episode_manifest
+                    )
+
                     if files_to_process:
-                        renamer = FileRenamerController(
-                            target_dir=target_dir, local_files=files_to_process, remote_episodes=season_episode_names
-                        )
-
-                        # Dry run check
+                        # Explicit --dry-run flag: preview only, no confirmation needed
                         if getattr(args, "dry_run", False):
-                            renamer.execute_rename(
-                                show_name=selected_show.name, season_num=selected_season.number, dry_run=True
+                            tv_renamer.rename_tv_episodes(
+                                show_name=selected_show.name, season=selected_season.number, dry_run=True
                             )
-
                         else:
-                            renamer.execute_rename(
-                                show_name=selected_show.name, season_num=selected_season.number, dry_run=True
+                            tv_renamer.rename_tv_episodes(
+                                show_name=selected_show.name, season=selected_season.number, dry_run=True
                             )
 
-                            if self.base_menu.prompt_confirmation(
+                            proceed = self.base_menu.prompt_confirmation(
                                 message="Do you want to proceed with renaming these files?",
                                 default=False,
-                            ):
-                                renamer.execute_rename(
-                                    show_name=selected_show.name,
-                                    season_num=selected_season.number,
-                                    dry_run=args.dry_run,
-                                )
-                            else:
+                            )
+
+                            if not proceed:
                                 cprint(colors.YELLOW, "Renaming sequence aborted by user. No files were changed.")
+                                return
+
+                            tv_renamer.rename_tv_episodes(
+                                show_name=selected_show.name,
+                                season=selected_season.number,
+                                dry_run=args.dry_run,
+                            )
                         return
 
                 elif next_action == "alternate_season":

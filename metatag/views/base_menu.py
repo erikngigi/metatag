@@ -40,9 +40,9 @@ class BaseMenuView:
             lambda: inquirer.select(
                 message="Select Media Type:",
                 choices=[
-                    {"name": "1. Anime (Jikan API)", "value": "anime_series"},
-                    {"name": "2. TV (TVMaze API)", "value": "tv_series"},
-                    {"name": "3. Exit Metatag", "value": "exit"},
+                    {"name": "Anime", "value": "anime_series"},
+                    {"name": "TV", "value": "tv_series"},
+                    {"name": "Exit Metatag", "value": "exit"},
                 ],
                 long_instruction="To cancel this prompt press, ctrl+c",
                 style=self.style,
@@ -87,9 +87,26 @@ class BaseMenuView:
 
         return rename_filetype_selection
 
+    def prompt_episode_selection(self, episode_manifest: list[str]) -> list[str]:
+        """Prompts the user to multi-select which remote episodes match their local files."""
+        episode_manifest_selection: list[str] = self._safe_prompt(
+            lambda: inquirer.checkbox(
+                message="Select the episodes you want to match (Space to toggle, Enter to confirm)",
+                choices=[{"name": ep, "value": ep, "enabled": True} for ep in episode_manifest],
+                instruction="[Space] Toggle, [Enter] Confirm",
+                transformer=lambda result: "",
+                style=self.style,
+            ).execute(),
+            exit_code=0,
+        )
+
+        return episode_manifest_selection
+
     def prompt_confirmation(self, message: str, default: bool) -> bool:
         """A generic reusable confirmation prompt that returns a boolen choice."""
-        return bool(self._safe_prompt(lambda: inquirer.confirm(message=message, default=default, style=self.style)))
+        return bool(
+            self._safe_prompt(lambda: inquirer.confirm(message=message, default=default, style=self.style).execute())
+        )
 
     def print_episodes(self, episode_list: list[str]) -> None:
         """Prints the pre-formatted episode names of the selected media type."""
