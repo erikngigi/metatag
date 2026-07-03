@@ -51,4 +51,9 @@ class FileSelectorController:
             for index, file in enumerate(selected_files, start=1):
                 cprint(f" {index:02d}. {file}")
 
+            confirmed_files = self.base_menu.prompt_local_file_selection(selected_files)
+
+            if not confirmed_files:
+                cprint(colors.YELLOW, "No local files selected. Aborting file selection.")
+
         return selected_files

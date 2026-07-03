@@ -38,10 +38,10 @@ class AnimeMenuView(BaseMenuView):
             lambda: inquirer.select(
                 message="Filter by Format Type:",
                 choices=[
-                    {"name": "1. Any Format", "value": ""},
-                    {"name": "2. Movie", "value": "movie"},
-                    {"name": "3. OVA / Special", "value": "ova"},
-                    {"name": "4. TV Show", "value": "tv"},
+                    {"name": "Any format", "value": ""},
+                    {"name": "Movie", "value": "movie"},
+                    {"name": "OVA/Special", "value": "ova"},
+                    {"name": "TV Show", "value": "tv"},
                 ],
                 style=self.style,
                 mandatory=True,
@@ -53,10 +53,10 @@ class AnimeMenuView(BaseMenuView):
             lambda: inquirer.select(
                 message="Filter by Airing Status:",
                 choices=[
-                    {"name": "1. Any Status", "value": ""},
-                    {"name": "2. Currently Airing", "value": "airing"},
-                    {"name": "3. Finished Airing", "value": "complete"},
-                    {"name": "4. Upcoming", "value": "upcoming"},
+                    {"name": "Any Status", "value": ""},
+                    {"name": "Currently Airing", "value": "airing"},
+                    {"name": "Finished Airing", "value": "complete"},
+                    {"name": "Upcoming", "value": "upcoming"},
                 ],
                 style=self.style,
                 mandatory=True,

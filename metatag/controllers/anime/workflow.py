@@ -6,8 +6,8 @@ from typing import TYPE_CHECKING, Any
 
 from metatag.colors import colors, cprint
 from metatag.controllers.anime.renamer import AnimeRenamerController
-from metatag.controllers.directory_selector import DirectoryController
-from metatag.controllers.file_selector import FileSelectorController
+from metatag.controllers.shared.directory_selector import DirectoryController
+from metatag.controllers.shared.file_selector import FileSelectorController
 
 if TYPE_CHECKING:
     from metatag.models.anime_model import AnimeJikanModel
@@ -86,7 +86,7 @@ class AnimeSelectorController:
 
                 for index, episode in enumerate(target_episode_list, start=start_index):
                     # Using 1-based continuous absolute indexing typical for anime naming conventions
-                    label = f"{index:02d} - {episode.title}"
+                    label = f"{selected_anime.title_english} {index:02d} - {episode.title}"
                     selected_anime_episode_names.append(label)
 
                 self.base_menu.print_episodes(selected_anime_episode_names)

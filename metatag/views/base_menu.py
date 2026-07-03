@@ -128,3 +128,18 @@ class BaseMenuView:
         )
 
         return post_rename_action
+
+    def prompt_local_file_selection(self, local_files: list[str]) -> list[str]:
+        """Prompts the user to multi-select which local files they want to include for renaming."""
+        local_file_selection: list[str] = self._safe_prompt(
+            lambda: inquirer.checkbox(
+                message="Select the local files you want to rename (Space to toggle, Enter to confirm)",
+                choices=[{"name": f, "value": f, "enabled": True} for f in local_files],
+                instruction="[Space] Toggle, [Enter] Confirm",
+                transformer=lambda result: f"{len(result)} file(s) selected",
+                style=self.style,
+            ).execute(),
+            exit_code=0,
+        )
+
+        return local_file_selection

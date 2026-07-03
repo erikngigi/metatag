@@ -4,8 +4,8 @@ from typing import TYPE_CHECKING, Any
 
 # Imported local pipeline controllers directly into the sub-module context
 from metatag.colors import colors, cprint
-from metatag.controllers.directory_selector import DirectoryController
-from metatag.controllers.file_selector import FileSelectorController
+from metatag.controllers.shared.directory_selector import DirectoryController
+from metatag.controllers.shared.file_selector import FileSelectorController
 from metatag.controllers.tv.renamer import TVRenamerController
 
 if TYPE_CHECKING:
