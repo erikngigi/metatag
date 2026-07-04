@@ -21,8 +21,11 @@ Options:
 """
 
 import argparse
+import sys
 
 import argcomplete
+
+from metatag import __version__
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -91,7 +94,19 @@ def parse_arguments() -> argparse.Namespace:
         help="Perform a dry run. Display proposed filename changes without altering files on disk.",
     )
 
+    parser.add_argument(
+        "-v",
+        "--version",
+        action="version",
+        version=f"%(prog)s {__version__}",
+        help="Show the application version and exit.",
+    )
+
     # Register the autocomplete hook before calling parse_args()
     argcomplete.autocomplete(parser)
+
+    if len(sys.argv) == 1:
+        parser.print_help(sys.stderr)
+        sys.exit(1)
 
     return parser.parse_args()

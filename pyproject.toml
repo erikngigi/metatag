@@ -6,10 +6,22 @@ build-backend = "hatchling.build"
 name = "metatag"
 version = "1.0.0"
 description = "A structured, API-driven renaming engine for local media collections."
-dependencies = ["requests", "InquirerPy", "argcomplete"]
+requires-python = ">=3.14"
+dependencies = [
+  "requests",
+  "InquirerPy",
+  "argcomplete",
+  "pfzy",
+  "httpx",
+  "tenacity",
+  "pydantic>=2.13.4",
+]
 
 [project.scripts]
 metatag = "metatag.main:main"
+
+[tool.hatch.version]
+path = "metatag/__init__.py"
 
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
@@ -123,6 +135,9 @@ warn_return_any = true              # flag functions that return Any
 warn_unused_ignores = true          # flag unnecessary `# type: ignore` comments
 warn_redundant_casts = true         # flag pointless cast() calls
 warn_unused_configs = true          # catch typos in this config
+
+[dependency-groups]
+dev = ["pyinstaller>=6.21.0", "pyinstaller-hooks-contrib"]
 
 # -- Strictness flags OFF by default (enable when ready) --
 # strict = true                     # enables all of the below at once
