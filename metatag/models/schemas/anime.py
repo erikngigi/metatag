@@ -2,8 +2,8 @@
 Pydantic data models for API response validation and data parsing.
 
 This module provides structured data schemas for handling and validating media metadata
-ingested from downstream external television (TVMaze) and anime (Jikan/MyAnimeList)
-micro-services across CLI wizard controller routers.
+ingested from downstream external anime API (Tenrai API) for micro-services across CLI
+wizard controller routers.
 """
 
 from typing import Optional
@@ -12,7 +12,7 @@ from pydantic import BaseModel, Field
 
 
 class AnimeSearchQuery(BaseModel):
-    """Data schema representing a structured search query for the Jikan Anime API.
+    """Data schema representing a structured search query for the Tenrai Anime API.
 
     This Pydantic model validates and encapsulates raw interactive wizard user inputs
     governing targeted name criteria, format variations, and tracking status states
@@ -54,11 +54,11 @@ class PaginationEpisodes(BaseModel):
 
 
 class AnimeDetailsSchema(BaseModel):
-    """Data schema representing validated anime series metadata from the Jikan API.
+    """Data schema representing validated anime series metadata from the Tenrai API.
 
     This Pydantic model acts as a structural validation layer for handling raw, JSON-parsed
-    payload responses returned by downstream Jikan/MyAnimeList search endpoints. It sanitizes
-    data, handles alias mappings, and exposes properties for user-facing CLI presentation loops.
+    payload responses returned by downstream Tenrai search endpoints. It sanitizes data,
+    handles alias mappings, and exposes properties for user-facing CLI presentation loops.
 
     Attributes:
         id (int): Unique database identifier assigned by MyAnimeList, aliased from 'mal_id'.
@@ -103,7 +103,7 @@ class AnimeEpisodeSchema(BaseModel):
     """Pydantic schema representing an individual anime episode manifest entry.
 
     This schema isolates structural data for individual anime episodes ingested from
-    downstream Jikan API endpoints, shielding file-handling pipelines from missing naming
+    downstream Tenrai API endpoints, shielding file-handling pipelines from missing naming
     attributes and facilitating absolute-number token generation for renaming structures.
 
     Attributes:
