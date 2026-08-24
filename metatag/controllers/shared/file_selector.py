@@ -33,11 +33,19 @@ class FileSelectorController:
             cprint(colors.RED, f"Failed to read the directory: {e}")
             return []
 
-        selected_files = [
-            filename
-            for filename in all_entries
-            if os.path.isfile(os.path.join(self.target_dir, filename)) and filename.lower().endswith(valid_extensions)
-        ]
+        # selected_files = [
+        #     filename
+        #     for filename in all_entries
+        #     if os.path.isfile(os.path.join(self.target_dir, filename)) and filename.lower().endswith(valid_extensions)
+        # ]
+        selected_files = sorted(
+            [
+                filename
+                for filename in all_entries
+                if os.path.isfile(os.path.join(self.target_dir, filename))
+                and filename.lower().endswith(valid_extensions)
+            ]
+        )
 
         target_dir_items = len(selected_files)
 

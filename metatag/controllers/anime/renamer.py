@@ -1,7 +1,7 @@
 """Anime File Renaming Controller.
 
 This module provides the orchestrator responsible for mapping local media files
-to paginated remote Jikan API metadata episodes and executing the structural file renaming
+to paginated remote Tenrai API metadata episodes and executing the structural file renaming
 operations using continuous or absolute indexing standards typical for Anime.
 """
 

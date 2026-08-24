@@ -13,7 +13,7 @@ from metatag.controllers.anime.workflow import AnimeSelectorController
 from metatag.controllers.tv.workflow import TVSelectorController
 
 if TYPE_CHECKING:
-    from metatag.models.anime_model import AnimeJikanModel
+    from metatag.models.anime_model import AnimeTenraiModel
     from metatag.models.tvmaze_model import TVMazeModel
     from metatag.views.anime_menu import AnimeMenuView
     from metatag.views.base_menu import BaseMenuView
@@ -25,13 +25,13 @@ class APISelectorController:
 
     def __init__(
         self,
-        anime: AnimeJikanModel,
+        anime_tenrai: AnimeTenraiModel,
         anime_menu: AnimeMenuView,
         base_menu: BaseMenuView,
         tvmaze: TVMazeModel,
         tvmenu: TVMenuView,
     ) -> None:
-        self.anime = anime
+        self.tenrai = anime_tenrai
         self.anime_menu = anime_menu
         self.base_menu = base_menu
         self.tvmaze = tvmaze
@@ -56,5 +56,5 @@ class APISelectorController:
 
     def _handle_anime_routing(self, args: Any) -> None:
         """Explicitly handles the initialization and execution lifecycle of Anime Series."""
-        anime_controller = AnimeSelectorController(self.anime_menu, self.base_menu, self.anime)
+        anime_controller = AnimeSelectorController(self.anime_menu, self.base_menu, self.tenrai)
         anime_controller.execute(args)

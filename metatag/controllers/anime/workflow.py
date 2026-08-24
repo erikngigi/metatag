@@ -10,7 +10,7 @@ from metatag.controllers.shared.directory_selector import DirectoryController
 from metatag.controllers.shared.file_selector import FileSelectorController
 
 if TYPE_CHECKING:
-    from metatag.models.anime_model import AnimeJikanModel
+    from metatag.models.anime_model import AnimeTenraiModel
     from metatag.views.anime_menu import AnimeMenuView
     from metatag.views.base_menu import BaseMenuView
 
@@ -18,10 +18,15 @@ if TYPE_CHECKING:
 class AnimeSelectorController:
     """Manages the standalone selection pipeline specifically for Anime series using Jikan API."""
 
-    def __init__(self, anime_menu: AnimeMenuView, base_menu: BaseMenuView, anime: AnimeJikanModel) -> None:
+    def __init__(
+        self,
+        anime_menu: AnimeMenuView,
+        base_menu: BaseMenuView,
+        anime_tenrai: AnimeTenraiModel,
+    ) -> None:
         self.anime_menu = anime_menu
         self.base_menu = base_menu
-        self.jikan = anime
+        self.tenrai = anime_tenrai
 
     def execute(self, args: Any) -> None:
         """Executes a single-run check of the Anime search and selection filters."""
@@ -29,8 +34,8 @@ class AnimeSelectorController:
             # Step 1: Get anime details from the user via unified prompt filters
             anime_detail_filters = self.anime_menu.prompt_anime_search_filters()
 
-            # Step 2: Fuzzy search using the Jikan API Model wrapper
-            fuzzy_search_anime = self.jikan.fuzzy_search_anime(
+            # Step 2: Fuzzy search using the Tenrai API Model wrapper
+            fuzzy_search_anime = self.tenrai.fuzzy_search_anime(
                 anime_name=anime_detail_filters.anime_name,
                 anime_type=anime_detail_filters.anime_type,
                 anime_status=anime_detail_filters.anime_status,
@@ -49,7 +54,7 @@ class AnimeSelectorController:
             selected_anime = self.anime_menu.prompt_anime_selection(anime_choices)
 
             # Step 5: Make an initial lightweight call to fetch page 1 to inspect the pagination limits
-            initial_payload = self.jikan.fetch_anime_episodes_names(selected_anime.id, page=1)
+            initial_payload = self.tenrai.fetch_anime_episodes_names(selected_anime.id, page=1)
 
             while True:
                 if not initial_payload:
@@ -69,7 +74,7 @@ class AnimeSelectorController:
                 if chosen_page == 1:
                     target_episode_list = initial_episodes
                 else:
-                    final_payload = self.jikan.fetch_anime_episodes_names(selected_anime.id, page=chosen_page)
+                    final_payload = self.tenrai.fetch_anime_episodes_names(selected_anime.id, page=chosen_page)
 
                     if not final_payload:
                         cprint(colors.YELLOW, f"Could not retrieve metadata for page {chosen_page}.")
@@ -80,7 +85,7 @@ class AnimeSelectorController:
                 # Step 8: Process and format the list using the chosen page context offset
                 selected_anime_episode_names: list[str] = []
 
-                # Jikan returns 100 items per page.
+                # Tenrai returns 100 items per page.
                 # Page 1 starts at index 1. Page 2 starts at ((2-1)*100)+1 = 101.
                 start_index = ((chosen_page - 1) * 100) + 1
 

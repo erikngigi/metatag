@@ -11,7 +11,7 @@ import sys
 from metatag.cli import parse_arguments
 from metatag.colors import colors, cprint
 from metatag.controllers.workflow_router import APISelectorController
-from metatag.models.anime_model import AnimeJikanModel
+from metatag.models.anime_model import AnimeTenraiModel
 from metatag.models.tvmaze_model import TVMazeModel
 from metatag.views.anime_menu import AnimeMenuView
 from metatag.views.base_menu import BaseMenuView
@@ -26,7 +26,7 @@ def main() -> None:
     # 2. INTERACTIVE WIZARD PATHWAY
     if args.interactive:
         # 1. Instantiate the Model layer module (Data Engine)
-        anime = AnimeJikanModel()
+        anime_tenrai = AnimeTenraiModel()
         tvmaze = TVMazeModel()
 
         # 2. Instantiate the View layer module (User Interface)
@@ -38,7 +38,7 @@ def main() -> None:
             try:
                 # Inject the View into the Controller layer module (Dependency Injection)
                 api_controller = APISelectorController(
-                    base_menu=base_menu, anime=anime, anime_menu=anime_menu, tvmaze=tvmaze, tvmenu=tvmenu
+                    base_menu=base_menu, anime_tenrai=anime_tenrai, anime_menu=anime_menu, tvmaze=tvmaze, tvmenu=tvmenu
                 )
 
                 api_controller.run(args)

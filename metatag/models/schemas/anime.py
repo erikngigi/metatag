@@ -25,8 +25,8 @@ class AnimeSearchQuery(BaseModel):
     """
 
     anime_name: str
-    anime_type: str
-    anime_status: str
+    anime_type: Optional[str] = None
+    anime_status: Optional[str] = None
 
 
 class PaginationItems(BaseModel):
