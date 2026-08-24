@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "metatag"
-version = "1.0.0"
+version = "1.0.5"
 description = "A structured, API-driven renaming engine for local media collections."
 requires-python = ">=3.14"
 dependencies = [
@@ -146,3 +146,6 @@ dev = ["pyinstaller>=6.21.0", "pyinstaller-hooks-contrib"]
 # disallow_untyped_calls = true
 # no_implicit_reexport = true
 # strict_equality = true
+
+[tool.uv]
+python-preference = "only-managed"

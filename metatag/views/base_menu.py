@@ -52,7 +52,7 @@ class BaseMenuView:
 
         if media_selection == "exit":
             cprint(colors.YELLOW, "Exiting Metatag Renamer.")
-            sys.exit(1)
+            sys.exit(0)
 
         return str(media_selection)
 

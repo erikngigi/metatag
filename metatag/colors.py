@@ -1,3 +1,9 @@
+"""Terminal Styling and Color Formatting Module.
+
+Provides custom prompt styling for InquirerPy, ANSI escape sequence constants,
+and utility functions for printing, prompt styling, and colored terminal inputs.
+"""
+
 from typing import Any
 
 from InquirerPy.utils import InquirerPyStyle
