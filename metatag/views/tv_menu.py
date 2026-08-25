@@ -24,8 +24,8 @@ class TVMenuView(BaseMenuView):
         """Get the TV show name from the user via text prompt."""
         show_name: str = self._safe_prompt(
             lambda: inquirer.text(
-                message="Search TV Show:",
-                style=self.style,
+                message="Enter TV series name to search:",
+                style=self.show_name_style,
                 validate=lambda text: len(text.strip()) > 0,
                 invalid_message="TV show name cannot be empty.",
             ).execute()
@@ -35,7 +35,9 @@ class TVMenuView(BaseMenuView):
     def prompt_show_selection(self, show_choices: list[dict[str, Any]]) -> TVShowSchema:
         """Display pre-formatted show choices directly to the user."""
         selected_show: TVShowSchema = self._safe_prompt(
-            lambda: inquirer.select(message="Select Show:", choices=show_choices, style=self.style).execute()
+            lambda: inquirer.select(
+                message="Select matching TV series:", choices=show_choices, style=self.show_selection_style
+            ).execute()
         )
 
         return selected_show
@@ -43,7 +45,9 @@ class TVMenuView(BaseMenuView):
     def prompt_season_selection(self, season_choices: list[dict[str, Any]]) -> TVSeasonSchema:
         """Display pre-formatted season choices directly to the user."""
         selected_seasons: TVSeasonSchema = self._safe_prompt(
-            lambda: inquirer.select(message="Selected Season:", choices=season_choices, style=self.style).execute()
+            lambda: inquirer.select(
+                message="Select season to map:", choices=season_choices, style=self.season_selection_style
+            ).execute()
         )
 
         return selected_seasons
@@ -56,20 +60,22 @@ class TVMenuView(BaseMenuView):
         """
         next_action: str = self._safe_prompt(
             lambda: inquirer.select(
-                message="Choose next action:",
+                message="Select next step:",
                 choices=[
-                    {"name": "Rename tv files", "value": "rename"},
-                    {"name": "Select alternate season", "value": "alternate_season"},
-                    {"name": "Search alternate tv show", "value": "search_again"},
-                    {"name": "Exit", "value": "exit"},
+                    {"name": "Proceed to File Selection & Renaming", "value": "rename"},
+                    {"name": "Preview Episodes for"},
+                    {"name": "Select a Different Season", "value": "alternate_season"},
+                    {"name": "Search for Another TV Series", "value": "search_again"},
+                    {"name": "Exit Metatag", "value": "exit"},
                 ],
-                style=self.style,
+                instruction="(Use  arrows to navigate)",
+                style=self.checkpoint_style,
             ).execute(),
             exit_code=0,
         )
 
         if next_action == "exit":
             cprint(colors.RED, "Operation cancelled.")
-            sys.exit(1)
+            sys.exit(0)
 
         return next_action

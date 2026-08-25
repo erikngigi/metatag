@@ -8,21 +8,123 @@ from typing import Any
 
 from InquirerPy.utils import InquirerPyStyle
 
-custom_style = InquirerPyStyle(
+media_selection_style = InquirerPyStyle(
+    {
+        "questionmark": "#45F705 bold",  # Signature green for the main indicator
+        "question": "#ffffff bold",  # Crisp white for main question text
+        "pointer": "#45F705 bold",  # Sharp green cursor pointer
+        "highlighted": "#45F705 bold",  # Active item lights up bright green
+        "choice": "#d1d5db",  # Soft light grey for unselected options
+        "selected": "#45F705 bold",  # Vibrant green confirmation state
+        "answer": "#45F705 bold",  # Selected value display after submit
+        "answered_question": "#9ca3af",  # Muted grey for completed prompt
+        "instruction": "#FFB700 italic",  # Amber italic hint for navigation tips
+        "long_instruction": "#6b7280",  # Muted secondary instructions (Ctrl+C hint)
+    }
+)
+
+show_name_style = InquirerPyStyle(
     {
         "questionmark": "#45F705 bold",
         "question": "#ffffff bold",
-        "input": "#ffffff",
-        "pointer": "#45F705",
-        "choice": "#ffffff",
-        "selected": "#45F705",
-        "separator": "#add8e6",
-        "answer": "#45F705",  # The committed selection shown after choosing
-        "answered_question": "#ffffff",  # The message text after the prompt is answered
-        "validator": "#ff6b6b bold",  # Inline validation error text
-        "highlighted": "#FF8800",  # The choice currently under the cursor
-        "instruction": "#808080",  # Secondary hint text e.g. "(Use arrow keys)"
-        "long_instruction": "#808080",  # Secondary hint text e.g. "(Use arrow keys)"
+        "input": "#45F705 bold",  # Highlight user text entry in signature green
+        "validator": "#ff6b6b bold",  # Crisp coral-red for empty input validation error
+        "answered_question": "#9ca3af",
+    }
+)
+
+show_selection_style = InquirerPyStyle(
+    {
+        "questionmark": "#45F705 bold",
+        "question": "#ffffff bold",
+        "pointer": "#45F705 bold",
+        "highlighted": "#45F705 bold",
+        "choice": "#d1d5db",
+        "instruction": "#38bdf8 italic",  # Sky blue for navigation instructions
+        "answered_question": "#9ca3af",
+    }
+)
+
+season_selection_style = InquirerPyStyle(
+    {
+        "questionmark": "#45F705 bold",
+        "question": "#ffffff bold",
+        "pointer": "#38bdf8 bold",  # Sky-blue pointer to visually distinguish season select
+        "highlighted": "#38bdf8 bold",
+        "choice": "#d1d5db",
+        "instruction": "#38bdf8 italic",
+        "answered_question": "#9ca3af",
+    }
+)
+
+checkpoint_style = InquirerPyStyle(
+    {
+        "questionmark": "#45F705 bold",
+        "question": "#ffffff bold",
+        "pointer": "#45F705 bold",
+        "highlighted": "#45F705 bold",
+        "choice": "#d1d5db",
+        "instruction": "#FFB700 italic",  # Amber hint text for next action guidance
+        "answered_question": "#9ca3af",
+    }
+)
+
+directory_selection_style = InquirerPyStyle(
+    {
+        "questionmark": "#10b981 bold",  # Emerald green for filesystem prompts
+        "question": "#ffffff bold",
+        "input": "#10b981 bold",  # Highlight active path entry in emerald green
+        "pointer": "#10b981 bold",  # Folder completion autocomplete cursor
+        "validator": "#ff6b6b bold",  # Path error warning color
+        "answered_question": "#9ca3af",
+    }
+)
+
+filetype_selection_style = InquirerPyStyle(
+    {
+        "questionmark": "#45F705 bold",
+        "question": "#ffffff bold",
+        "pointer": "#45F705 bold",
+        "highlighted": "#45F705 bold",
+        "choice": "#d1d5db",
+        "instruction": "#808080 italic",
+        "answered_question": "#9ca3af",
+    }
+)
+
+checkbox_selection_style = InquirerPyStyle(
+    {
+        "questionmark": "#06b6d4 bold",  # Cyan theme for batch selection state
+        "question": "#ffffff bold",
+        "pointer": "#06b6d4 bold",  # Cursor indicator
+        "checkbox": "#06b6d4 bold",  # Unchecked [ ] visual key
+        "enabled": "#45F705 bold",  # Checked [*] items in bright green
+        "highlighted": "#06b6d4 bold",  # Active row under cursor
+        "choice": "#9ca3af",
+        "instruction": "#06b6d4 italic",  # Hints: [Space] Toggle, [Enter] Confirm
+        "answered_question": "#9ca3af",
+    }
+)
+
+confirmation_style = InquirerPyStyle(
+    {
+        "questionmark": "#facc15 bold",  # Vivid yellow for critical action confirmation
+        "question": "#ffffff bold",
+        "answer": "#45F705 bold",
+        "answered_question": "#9ca3af",
+        "instruction": "#facc15 italic",
+    }
+)
+
+post_rename_style = InquirerPyStyle(
+    {
+        "questionmark": "#45F705 bold",
+        "question": "#ffffff bold",
+        "pointer": "#45F705 bold",
+        "highlighted": "#45F705 bold",
+        "choice": "#d1d5db",
+        "instruction": "#FFB700 italic",
+        "answered_question": "#9ca3af",
     }
 )
 

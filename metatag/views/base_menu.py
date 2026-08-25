@@ -13,14 +13,36 @@ from typing import Any, Callable
 from InquirerPy import inquirer
 from InquirerPy.validator import PathValidator
 
-from metatag.colors import colors, cprint, custom_style
+from metatag.colors import (
+    checkbox_selection_style,
+    checkpoint_style,
+    colors,
+    confirmation_style,
+    cprint,
+    directory_selection_style,
+    filetype_selection_style,
+    media_selection_style,
+    post_rename_style,
+    season_selection_style,
+    show_name_style,
+    show_selection_style,
+)
 
 
 class BaseMenuView:
     """Renders common CLI components like styles, headers, and exit prompts."""
 
     def __init__(self) -> None:
-        self.style = custom_style
+        self.media_selection_style = media_selection_style
+        self.show_name_style = show_name_style
+        self.show_selection_style = show_selection_style
+        self.season_selection_style = season_selection_style
+        self.checkpoint_style = checkpoint_style
+        self.directory_selection_style = directory_selection_style
+        self.filetype_selection_style = filetype_selection_style
+        self.checkbox_selection_style = checkbox_selection_style
+        self.confirmation_style = confirmation_style
+        self.post_rename_style = post_rename_style
 
     def _safe_prompt(self, prompt_func: Callable[[], Any], exit_code: int = 0) -> Any:
         """Helper wrapper to handle KeyboardInterrupt globally across menus."""
@@ -38,20 +60,21 @@ class BaseMenuView:
         """Select between TV Show and Anime."""
         media_selection = self._safe_prompt(
             lambda: inquirer.select(
-                message="Select Media Type:",
+                message="Select the media type to process:",
                 choices=[
                     {"name": "Anime", "value": "anime_series"},
-                    {"name": "TV", "value": "tv_series"},
-                    {"name": "Exit Metatag", "value": "exit"},
+                    {"name": "TV Series", "value": "tv_series"},
+                    {"name": "Exit", "value": "exit"},
                 ],
-                long_instruction="To cancel this prompt press, ctrl+c",
-                style=self.style,
+                instruction="(Use  arrows to navigate)",
+                long_instruction="To cancel this prompt press ctrl+c",
+                style=self.media_selection_style,
             ).execute(),
             exit_code=0,
         )
 
         if media_selection == "exit":
-            cprint(colors.YELLOW, "Exiting Metatag Renamer.")
+            cprint(colors.YELLOW, "Exited Metatag")
             sys.exit(0)
 
         return str(media_selection)
@@ -61,8 +84,8 @@ class BaseMenuView:
         return str(
             self._safe_prompt(
                 lambda: inquirer.filepath(
-                    message="Select Directory:",
-                    style=self.style,
+                    message="Enter target folder path:",
+                    style=self.directory_selection_style,
                     default=default_path,
                     only_directories=True,
                     validate=PathValidator(is_dir=True, message="Target directory path does not exist."),
@@ -75,13 +98,13 @@ class BaseMenuView:
         """Select filetype you want to rename (e.g., subtitles, videos)"""
         rename_filetype_selection: str = self._safe_prompt(
             lambda: inquirer.select(
-                message="Select filetype to rename:",
+                message="Filter target file extension(s):",
                 choices=[
                     {"name": "mkv/mp4", "value": "video"},
                     {"name": "srt", "value": "subtitle"},
                 ],
                 long_instruction="To cancel this prompt press, ctrl+c",
-                style=self.style,
+                style=self.filetype_selection_style,
             ).execute()
         )
 
@@ -95,7 +118,7 @@ class BaseMenuView:
                 choices=[{"name": ep, "value": ep, "enabled": True} for ep in episode_manifest],
                 instruction="[Space] Toggle, [Enter] Confirm",
                 transformer=lambda result: "",
-                style=self.style,
+                style=self.checkbox_selection_style,
             ).execute(),
             exit_code=0,
         )
@@ -105,7 +128,9 @@ class BaseMenuView:
     def prompt_confirmation(self, message: str, default: bool) -> bool:
         """A generic reusable confirmation prompt that returns a boolen choice."""
         return bool(
-            self._safe_prompt(lambda: inquirer.confirm(message=message, default=default, style=self.style).execute())
+            self._safe_prompt(
+                lambda: inquirer.confirm(message=message, default=default, style=self.confirmation_style).execute()
+            )
         )
 
     def print_episodes(self, episode_list: list[str]) -> None:
@@ -123,7 +148,7 @@ class BaseMenuView:
                     {"name": "Run Another Rename Cycle", "value": "search_again"},
                     {"name": "Exit Metatag", "value": "exit"},
                 ],
-                style=self.style,
+                style=self.post_rename_style,
             ).execute()
         )
 
@@ -137,7 +162,7 @@ class BaseMenuView:
                 choices=[{"name": f, "value": f, "enabled": True} for f in local_files],
                 instruction="[Space] Toggle, [Enter] Confirm",
                 transformer=lambda result: f"{len(result)} file(s) selected",
-                style=self.style,
+                style=self.post_rename_style,
             ).execute(),
             exit_code=0,
         )

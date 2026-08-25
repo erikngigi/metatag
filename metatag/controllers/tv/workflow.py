@@ -42,7 +42,6 @@ class TVSelectorController:
                 label = f"{show.name} ({show.year_range})"
                 show_choices.append({"name": label, "value": show})
 
-            # selected_show: TVShowSchema = self.wizard.prompt_show_selection(show_choices)
             selected_show: TVShowSchema = self.tvmenu.prompt_show_selection(show_choices)
 
             while True:
@@ -58,7 +57,6 @@ class TVSelectorController:
                     choice = {"name": season.summary_label, "value": season}
                     season_choices.append(choice)
 
-                # selected_season: TVSeasonSchema = self.wizard.prompt_season_selection(season_choices)
                 selected_season: TVSeasonSchema = self.tvmenu.prompt_season_selection(season_choices)
 
                 # Step 5: Fetch episode manifest of each season
@@ -73,18 +71,17 @@ class TVSelectorController:
                     label = f"{selected_show.name} {episode.marker} - {episode.name}"
                     season_episode_names.append(label)
 
-                # self.wizard.display_episode_manifest(season_episode_names)
-                self.base_menu.print_episodes(season_episode_names)
+                # self.base_menu.print_episodes(season_episode_names)
 
                 # Step 6: Loop control
                 next_action = self.tvmenu.prompt_tv_checkpoint()
 
                 if next_action == "rename":
-                    selected_episode_manifest = self.base_menu.prompt_episode_selection(season_episode_names)
+                    # selected_episode_manifest = self.base_menu.prompt_episode_selection(season_episode_names)
 
-                    if not selected_episode_manifest:
-                        cprint(colors.YELLOW, "No remote episodes selected. Aborting rename phase.")
-                        continue
+                    # if not selected_episode_manifest:
+                    #     cprint(colors.YELLOW, "No remote episodes selected. Aborting rename phase.")
+                    #     continue
 
                     dir_controller = DirectoryController(self.base_menu)
                     target_dir = dir_controller.run()
@@ -93,7 +90,7 @@ class TVSelectorController:
                     files_to_process = file_controller.run()
 
                     tv_renamer = TVRenamerController(
-                        target_dir=target_dir, local_files=files_to_process, episode_manifest=selected_episode_manifest
+                        target_dir=target_dir, local_files=files_to_process, episode_manifest=season_episode_names
                     )
 
                     if files_to_process:

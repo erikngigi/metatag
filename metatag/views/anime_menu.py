@@ -27,7 +27,7 @@ class AnimeMenuView(BaseMenuView):
         anime_name: str = self._safe_prompt(
             lambda: inquirer.text(
                 message="Enter anime name to search:",
-                style=self.style,
+                style=self.show_name_style,
                 validate=lambda text: len(text.strip()) > 0,
                 invalid_message="Search term cannot be empty.",
             ).execute(),
@@ -43,7 +43,7 @@ class AnimeMenuView(BaseMenuView):
                     {"name": "OVA/Special", "value": "ova"},
                     {"name": "TV Show", "value": "tv"},
                 ],
-                style=self.style,
+                style=self.show_name_style,
                 mandatory=True,
             ).execute(),
             exit_code=1,
@@ -58,7 +58,7 @@ class AnimeMenuView(BaseMenuView):
                     {"name": "Finished Airing", "value": "complete"},
                     {"name": "Upcoming", "value": "upcoming"},
                 ],
-                style=self.style,
+                style=self.show_name_style,
                 mandatory=True,
             ).execute(),
             exit_code=1,
@@ -77,7 +77,7 @@ class AnimeMenuView(BaseMenuView):
             lambda: inquirer.select(
                 message="Select Show:",
                 choices=anime_choices,
-                style=self.style,
+                style=self.show_name_style,
                 instruction=f"[Use arrows to navigate] Items: {anime_count}/{anime_count}",
                 long_instruction="To cancel this prompt press, ctrl+c",
             ).execute()
@@ -95,7 +95,7 @@ class AnimeMenuView(BaseMenuView):
                 message="Multiple episode pages found. Select a metadata chunk page to view:",
                 choices=page_choices,
                 default=1,
-                style=self.style,
+                style=self.show_selection_style,
             ).execute()
         )
 
@@ -111,12 +111,13 @@ class AnimeMenuView(BaseMenuView):
             lambda: inquirer.select(
                 message="Choose next action:",
                 choices=[
-                    {"name": "Rename anime files", "value": "rename"},
-                    {"name": "Select alternate page", "value": "alternate_page"},
-                    {"name": "Search alternate anime", "value": "search_again"},
-                    {"name": "Exit", "value": "exit"},
+                    {"name": "Proceed to File Selection & Renaming", "value": "rename"},
+                    {"name": "Select a Different Episode Page", "value": "alternate_page"},
+                    {"name": "Search for Another Anime Series", "value": "search_again"},
+                    {"name": "Exit Metatag", "value": "exit"},
                 ],
-                style=self.style,
+                instruction="(Use  arrows to navigate)",
+                style=self.checkpoint_style,
             ).execute(),
             exit_code=0,
         )

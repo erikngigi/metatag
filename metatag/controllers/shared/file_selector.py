@@ -64,4 +64,4 @@ class FileSelectorController:
             if not confirmed_files:
                 cprint(colors.YELLOW, "No local files selected. Aborting file selection.")
 
-        return selected_files
+        return confirmed_files
