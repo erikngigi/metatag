@@ -63,7 +63,6 @@ class TVMenuView(BaseMenuView):
                 message="Select next step:",
                 choices=[
                     {"name": "Proceed to File Selection & Renaming", "value": "rename"},
-                    {"name": "Preview Episodes for"},
                     {"name": "Select a Different Season", "value": "alternate_season"},
                     {"name": "Search for Another TV Series", "value": "search_again"},
                     {"name": "Exit Metatag", "value": "exit"},

@@ -18,10 +18,10 @@ sync: ## Sync dependencies and set up the virtual environment
 	uv sync
 
 run: ## Run the interactive CLI application
-	uv run python $(APP_ENTRY) -a
+	uv run python $(APP_ENTRY) --interactive
 
 run-dry: ## Run the interactive CLI application in dry-run mode (-d)
-	uv run python $(APP_ENTRY) -a -d
+	uv run python $(APP_ENTRY) --interactive --preview
 
 test: ## Run tests (placeholder)
 	@echo "No test configured yet"

@@ -21,10 +21,11 @@ from metatag.views.tv_menu import TVMenuView
 def main() -> None:
     """Orchestrates system startup and conditional flag routing."""
     # 1. Parse incoming terminal flags via argparse
-    args = parse_arguments()
+    # args = parse_arguments()
+    cli_args = parse_arguments()
 
     # 2. INTERACTIVE WIZARD PATHWAY
-    if args.interactive:
+    if cli_args.interactive:
         # 1. Instantiate the Model layer module (Data Engine)
         anime_tenrai = AnimeTenraiModel()
         tvmaze = TVMazeModel()
@@ -41,7 +42,7 @@ def main() -> None:
                     base_menu=base_menu, anime_tenrai=anime_tenrai, anime_menu=anime_menu, tvmaze=tvmaze, tvmenu=tvmenu
                 )
 
-                api_controller.run(args)
+                api_controller.run(cli_args)
 
                 next_move = base_menu.prompt_post_rename_options()
 
@@ -70,7 +71,7 @@ def main() -> None:
         "    $ metatag -a\n",
         file=sys.stderr,
     )
-    sys.exit(1)
+    sys.exit(0)
 
 
 if __name__ == "__main__":

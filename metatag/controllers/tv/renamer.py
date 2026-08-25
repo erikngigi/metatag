@@ -20,14 +20,14 @@ class TVRenamerController:
         self.local_files = [Path(f) for f in local_files]
         self.episode_manifest = episode_manifest
 
-    def rename_tv_episodes(self, show_name: str, season: int, dry_run: bool = True) -> None:
+    def rename_tv_episodes(self, show_name: str, season: int, preview: bool = True) -> None:
         """Pairs local files with remote TV episode manifest and executes the
         renaming operation.
         """
-        action_label = "DRY RUN" if dry_run else "RENAME"
+        action_label = "DRY RUN" if preview else "RENAME"
         cprint(
             colors.CYAN,
-            f"\n[{action_label}] {show_name} Season {season} {'[previewing changes only]' if dry_run else '[applying changes]'}",
+            f"\n[{action_label}] {show_name} Season {season} {'[previewing changes only]' if preview else '[applying changes]'}",
         )
 
         for local_path, remote_name in zip(self.local_files, self.episode_manifest):
@@ -37,7 +37,7 @@ class TVRenamerController:
             new_filename = f"{remote_name}{file_extension}"
             destination_path = self.target_dir / new_filename
 
-            if dry_run:
+            if preview:
                 cprint(colors.WHITE, f" {local_path.name}", colors.YELLOW, "    ", colors.CYAN, f"{new_filename}")
             else:
                 try:

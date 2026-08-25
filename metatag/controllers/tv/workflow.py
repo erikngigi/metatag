@@ -23,7 +23,7 @@ class TVSelectorController:
         self.tvmaze = tvmaze
         self.tvmenu = tvmenu
 
-    def execute(self, args: Any) -> None:
+    def execute(self, cli_args: Any) -> None:
         """Executes the complete step-by-step TV selection and renaming pipeline."""
         while True:
             # Step 1: Get show name from the user
@@ -95,13 +95,13 @@ class TVSelectorController:
 
                     if files_to_process:
                         # Explicit --dry-run flag: preview only, no confirmation needed
-                        if getattr(args, "dry_run", False):
+                        if getattr(cli_args, "preview", False):
                             tv_renamer.rename_tv_episodes(
-                                show_name=selected_show.name, season=selected_season.number, dry_run=True
+                                show_name=selected_show.name, season=selected_season.number, preview=True
                             )
                         else:
                             tv_renamer.rename_tv_episodes(
-                                show_name=selected_show.name, season=selected_season.number, dry_run=True
+                                show_name=selected_show.name, season=selected_season.number, preview=True
                             )
 
                             proceed = self.base_menu.prompt_confirmation(
@@ -114,9 +114,7 @@ class TVSelectorController:
                                 return
 
                             tv_renamer.rename_tv_episodes(
-                                show_name=selected_show.name,
-                                season=selected_season.number,
-                                dry_run=args.dry_run,
+                                show_name=selected_show.name, season=selected_season.number, preview=cli_args.preview
                             )
                         return
 
