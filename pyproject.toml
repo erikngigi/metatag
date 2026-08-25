@@ -3,8 +3,8 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "metatag"
-version = "1.0.5"
+name = "Metatag"
+version = "1.0.6"
 description = "A structured, API-driven renaming engine for local media collections."
 requires-python = ">=3.14"
 dependencies = [
