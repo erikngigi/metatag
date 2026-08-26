@@ -94,10 +94,11 @@ class AnimeSelectorController:
                     label = f"{selected_anime.title_english} {index:02d} - {episode.title}"
                     selected_anime_episode_names.append(label)
 
-                self.base_menu.print_episodes(selected_anime_episode_names)
+                # self.base_menu.print_episodes(selected_anime_episode_names)
+                self.base_menu.print_anime_episode_manifest(selected_anime.title, selected_anime_episode_names)
 
                 # Step 9: Loop control
-                next_action = self.anime_menu.prompt_anime_checkpoint()
+                next_action = self.anime_menu.prompt_anime_post_checkpoint()
 
                 if next_action == "rename":
                     selected_episode_manifest = self.base_menu.prompt_episode_selection(selected_anime_episode_names)
@@ -144,5 +145,4 @@ class AnimeSelectorController:
 
                 elif next_action == "search_again":
                     self.base_menu.clear_screen()
-                    cprint(colors.GREY, "Search for TV Show.")
                     break

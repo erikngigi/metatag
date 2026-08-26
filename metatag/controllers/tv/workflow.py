@@ -72,9 +72,12 @@ class TVSelectorController:
                     season_episode_names.append(label)
 
                 # self.base_menu.print_episodes(season_episode_names)
+                self.base_menu.print_tv_episode_manifest(
+                    selected_show.name, selected_season.number, season_episode_names
+                )
 
                 # Step 6: Loop control
-                next_action = self.tvmenu.prompt_tv_checkpoint()
+                next_action = self.tvmenu.prompt_tv_post_manifest_action()
 
                 if next_action == "rename":
                     # selected_episode_manifest = self.base_menu.prompt_episode_selection(season_episode_names)
@@ -125,5 +128,5 @@ class TVSelectorController:
 
                 elif next_action == "search_again":
                     self.base_menu.clear_screen()
-                    cprint(colors.GREY, "Search for TV Show.")
+                    cprint(colors.CYAN_BOLD, "Search for TV Show.")
                     break

@@ -15,17 +15,16 @@ from InquirerPy.validator import PathValidator
 
 from metatag.colors import (
     checkbox_selection_style,
-    checkpoint_style,
     colors,
-    confirmation_style,
+    confirm_prompt_style,
     cprint,
     directory_selection_style,
     filetype_selection_style,
     media_selection_style,
+    post_manifest_action_style,
     post_rename_style,
-    season_selection_style,
-    show_name_style,
     show_selection_style,
+    show_title_style,
 )
 
 
@@ -34,22 +33,21 @@ class BaseMenuView:
 
     def __init__(self) -> None:
         self.media_selection_style = media_selection_style
-        self.show_name_style = show_name_style
+        self.show_title_style = show_title_style
         self.show_selection_style = show_selection_style
-        self.season_selection_style = season_selection_style
-        self.checkpoint_style = checkpoint_style
         self.directory_selection_style = directory_selection_style
         self.filetype_selection_style = filetype_selection_style
         self.checkbox_selection_style = checkbox_selection_style
-        self.confirmation_style = confirmation_style
+        self.confirm_prompt_style = confirm_prompt_style
         self.post_rename_style = post_rename_style
+        self.post_manifest_action_style = post_manifest_action_style
 
     def _safe_prompt(self, prompt_func: Callable[[], Any], exit_code: int = 0) -> Any:
         """Helper wrapper to handle KeyboardInterrupt globally across menus."""
         try:
             return prompt_func()
         except KeyboardInterrupt:
-            cprint(colors.YELLOW, "Operation cancelled.")
+            cprint(colors.YELLOW_BOLD, "Exited Metatag")
             sys.exit(exit_code)
 
     def clear_screen(self) -> None:
@@ -115,6 +113,8 @@ class BaseMenuView:
         episode_manifest_selection: list[str] = self._safe_prompt(
             lambda: inquirer.checkbox(
                 message="Select the episodes you want to match (Space to toggle, Enter to confirm)",
+                enabled_symbol="󰱒 ",
+                disabled_symbol=" ",
                 choices=[{"name": ep, "value": ep, "enabled": True} for ep in episode_manifest],
                 instruction="[Space] Toggle, [Enter] Confirm",
                 transformer=lambda result: "",
@@ -129,15 +129,42 @@ class BaseMenuView:
         """A generic reusable confirmation prompt that returns a boolen choice."""
         return bool(
             self._safe_prompt(
-                lambda: inquirer.confirm(message=message, default=default, style=self.confirmation_style).execute()
+                lambda: inquirer.confirm(message=message, default=default, style=self.confirm_prompt_style).execute()
             )
         )
 
     def print_episodes(self, episode_list: list[str]) -> None:
         """Prints the pre-formatted episode names of the selected media type."""
         for name in episode_list:
-            cprint(colors.WHITE, f"{name}")
-        print()
+            cprint(colors.CYAN_BOLD, f"{name}")
+
+    def print_tv_episode_manifest(
+        self,
+        show_name: str,
+        season_identifier: int,
+        episode_list: list[str],
+    ) -> None:
+        """Prints an episode manifest framed with top header and bottom footer rules."""
+        header_title = f"  {show_name} — Season {season_identifier}"
+
+        cprint(colors.BLUE_BOLD_UNDERLINE, header_title)
+
+        # Episode Items (Clean, left-aligned without side padding or side borders)
+        for name in episode_list:
+            cprint(colors.BLUE_BOLD, f"  {name}")
+
+    def print_anime_episode_manifest(
+        self,
+        show_name: str,
+        episode_list: list[str],
+    ) -> None:
+        """Prints an episode manifest framed with top header and bottom footer rules."""
+
+        cprint(colors.BLUE_BOLD_UNDERLINE, show_name)
+
+        # Episode Items (Clean, left-aligned without side padding or side borders)
+        for name in episode_list:
+            cprint(colors.BLUE_BOLD, f"  {name}")
 
     def prompt_post_rename_options(self) -> str:
         """Prompts the user on next actions after succesful renaming process."""
@@ -159,10 +186,12 @@ class BaseMenuView:
         local_file_selection: list[str] = self._safe_prompt(
             lambda: inquirer.checkbox(
                 message="Select the local files you want to rename (Space to toggle, Enter to confirm)",
+                enabled_symbol="󰋘",
+                disabled_symbol="󰋙",
                 choices=[{"name": f, "value": f, "enabled": True} for f in local_files],
                 instruction="[Space] Toggle, [Enter] Confirm",
                 transformer=lambda result: f"{len(result)} file(s) selected",
-                style=self.post_rename_style,
+                style=self.checkbox_selection_style,
             ).execute(),
             exit_code=0,
         )

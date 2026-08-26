@@ -33,11 +33,6 @@ class FileSelectorController:
             cprint(colors.RED, f"Failed to read the directory: {e}")
             return []
 
-        # selected_files = [
-        #     filename
-        #     for filename in all_entries
-        #     if os.path.isfile(os.path.join(self.target_dir, filename)) and filename.lower().endswith(valid_extensions)
-        # ]
         selected_files = sorted(
             [
                 filename
@@ -53,11 +48,13 @@ class FileSelectorController:
             cprint(colors.YELLOW, f"No matching {file_type_choice} files discovered.")
         else:
             cprint(
-                colors.CYAN,
-                f"\nFiles indexed in the directory '{self.target_dir}'. Items [{target_dir_items}/{target_dir_items}]",
+                colors.YELLOW_BOLD_UNDERLINE_1,
+                f"  Files in directory: {target_dir_items} episodes found",
             )
-            for index, file in enumerate(selected_files, start=1):
-                cprint(f" {index:02d}. {file}")
+            # for index, file in enumerate(selected_files, start=1):
+            #     cprint(f" {index:02d}. {file}")
+            for file in selected_files:
+                cprint(colors.YELLOW_BOLD_1, f"  {file}")
 
             confirmed_files = self.base_menu.prompt_local_file_selection(selected_files)
 

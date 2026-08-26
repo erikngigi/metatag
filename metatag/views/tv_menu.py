@@ -25,7 +25,7 @@ class TVMenuView(BaseMenuView):
         show_name: str = self._safe_prompt(
             lambda: inquirer.text(
                 message="Enter TV series name to search:",
-                style=self.show_name_style,
+                style=self.show_title_style,
                 validate=lambda text: len(text.strip()) > 0,
                 invalid_message="TV show name cannot be empty.",
             ).execute()
@@ -46,17 +46,21 @@ class TVMenuView(BaseMenuView):
         """Display pre-formatted season choices directly to the user."""
         selected_seasons: TVSeasonSchema = self._safe_prompt(
             lambda: inquirer.select(
-                message="Select season to map:", choices=season_choices, style=self.season_selection_style
+                message="Select season to map:", choices=season_choices, style=self.show_selection_style
             ).execute()
         )
 
         return selected_seasons
 
-    def prompt_tv_checkpoint(self) -> str:
-        """Prompts the user for their next action after displayinh the TV season episodes.
+    def prompt_tv_post_manifest_action(self) -> str:
+        """Prompts for the next step following the display of a TV show's episode manifest.
 
-        Allows the user to proceed with file renaming, revert to selecting an alternate
-        season for the current show, search for a different title, or exit.
+        Presents a menu for the user to proceed with target file selection and renaming,
+        navigate back to choose another season within the same series, initiate a fresh
+        TV series search, or safely terminate execution.
+
+        Returns:
+            str: The selected navigation token ('rename', 'alternate_season', 'search_again').
         """
         next_action: str = self._safe_prompt(
             lambda: inquirer.select(
@@ -67,14 +71,14 @@ class TVMenuView(BaseMenuView):
                     {"name": "Search for Another TV Series", "value": "search_again"},
                     {"name": "Exit Metatag", "value": "exit"},
                 ],
-                instruction="(Use  arrows to navigate)",
-                style=self.checkpoint_style,
+                instruction="(Use ↑/↓ arrows to navigate)",
+                style=self.post_manifest_action_style,
             ).execute(),
             exit_code=0,
         )
 
         if next_action == "exit":
-            cprint(colors.RED, "Operation cancelled.")
+            cprint(colors.YELLOW_BOLD, "Exited Metatag")
             sys.exit(0)
 
         return next_action

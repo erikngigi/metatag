@@ -8,9 +8,9 @@ from __future__ import annotations
 
 import sys
 
-from metatag.cli import parse_arguments
+from metatag.cli import CLIArgs, parse_arguments
 from metatag.colors import colors, cprint
-from metatag.controllers.workflow_router import APISelectorController
+from metatag.controllers.workflow_router import WorkflowRouterController
 from metatag.models.anime_model import AnimeTenraiModel
 from metatag.models.tvmaze_model import TVMazeModel
 from metatag.views.anime_menu import AnimeMenuView
@@ -18,60 +18,59 @@ from metatag.views.base_menu import BaseMenuView
 from metatag.views.tv_menu import TVMenuView
 
 
-def main() -> None:
-    """Orchestrates system startup and conditional flag routing."""
-    # 1. Parse incoming terminal flags via argparse
-    # args = parse_arguments()
-    cli_args = parse_arguments()
+def run_interactive_wizard(cli_args: CLIArgs) -> None:
+    """Orchestrates the interactive wizard lifecycle."""
+    # 1. Instantiate Data Engine (Models) & UI (Views)
+    anime_tenrai = AnimeTenraiModel()
+    tvmaze = TVMazeModel()
+    base_menu = BaseMenuView()
+    anime_menu = AnimeMenuView()
+    tvmenu = TVMenuView()
 
-    # 2. INTERACTIVE WIZARD PATHWAY
-    if cli_args.interactive:
-        # 1. Instantiate the Model layer module (Data Engine)
-        anime_tenrai = AnimeTenraiModel()
-        tvmaze = TVMazeModel()
+    # 2. Inject dependencies into Controller once
+    workflow_controller = WorkflowRouterController(
+        base_menu=base_menu,
+        anime_tenrai=anime_tenrai,
+        anime_menu=anime_menu,
+        tvmaze=tvmaze,
+        tvmenu=tvmenu,
+    )
 
-        # 2. Instantiate the View layer module (User Interface)
-        base_menu = BaseMenuView()
-        anime_menu = AnimeMenuView()
-        tvmenu = TVMenuView()
+    # 3. Interactive Execution Loop
+    while True:
+        try:
+            workflow_controller.dispatch(cli_args)
 
-        while True:
-            try:
-                # Inject the View into the Controller layer module (Dependency Injection)
-                api_controller = APISelectorController(
-                    base_menu=base_menu, anime_tenrai=anime_tenrai, anime_menu=anime_menu, tvmaze=tvmaze, tvmenu=tvmenu
-                )
-
-                api_controller.run(cli_args)
-
-                next_move = base_menu.prompt_post_rename_options()
-
-                if next_move == "exit":
-                    cprint(colors.YELLOW, "Exiting Metatag. Goodbye.")
-                    break
-
-                base_menu.clear_screen()
-
-            except KeyboardInterrupt:
-                cprint(colors.YELLOW, "Execution interrupted by user. Exiting Metatag.")
+            next_move = base_menu.prompt_post_rename_options()
+            if next_move == "exit":
+                cprint(colors.YELLOW, "Exiting Metatag. Goodbye.")
                 break
 
-        sys.exit(0)
+            base_menu.clear_screen()
 
-    # 3. FALLBACK DEFAULT LOGIC
-    # Since positional arguments are currently disabled in cli.py, running
-    # the application without any flags would cause it to silently do nothing.
-    # This block provides a helpful message guiding users to the interactive flag.
+        except KeyboardInterrupt:
+            cprint(colors.YELLOW, "\nExecution interrupted by user. Exiting Metatag.")
+            break
+
+    sys.exit(0)
+
+
+def main() -> None:
+    """Orchestrates system startup and conditional flag routing."""
+    cli_args = parse_arguments()
+
+    # if cli_args.interactive:
+    #     run_interactive_wizard(cli_args)
+    if cli_args.interactive:
+        run_interactive_wizard(cli_args)
+
+    # Fallback message if run without flags
     cprint(
         colors.CYAN,
-        "Welcome to metatag!\n"
-        "Standard file system mode is temporarily offline for maintenance.\n"
-        "Please launch the interactive metadata explorer using:\n\n"
-        "    $ metatag --interactive\n"
-        "    $ metatag -a\n",
+        "Welcome to metatag!\nPlease launch the interactive metadata explorer using:\n\n    $ metatag --interactive\n",
         file=sys.stderr,
     )
-    sys.exit(0)
+    sys.exit(1)
 
 
 if __name__ == "__main__":

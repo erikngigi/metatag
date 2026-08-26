@@ -27,7 +27,7 @@ class AnimeMenuView(BaseMenuView):
         anime_name: str = self._safe_prompt(
             lambda: inquirer.text(
                 message="Enter anime name to search:",
-                style=self.show_name_style,
+                style=self.show_title_style,
                 validate=lambda text: len(text.strip()) > 0,
                 invalid_message="Search term cannot be empty.",
             ).execute(),
@@ -38,12 +38,12 @@ class AnimeMenuView(BaseMenuView):
             lambda: inquirer.select(
                 message="Filter by Format Type:",
                 choices=[
-                    {"name": "Any format", "value": None},
-                    {"name": "Movie", "value": "movie"},
-                    {"name": "OVA/Special", "value": "ova"},
-                    {"name": "TV Show", "value": "tv"},
+                    {"name": "All Formats (No filter applied)", "value": None},
+                    {"name": "TV Series (Seasonal broadcast & episodic shows)", "value": "tv"},
+                    {"name": "Feature Movie (Theatrical & full-length films)", "value": "movie"},
+                    {"name": "OVA / Special (Original video animations & side stories)", "value": "ova"},
                 ],
-                style=self.show_name_style,
+                style=self.show_selection_style,
                 mandatory=True,
             ).execute(),
             exit_code=1,
@@ -53,12 +53,12 @@ class AnimeMenuView(BaseMenuView):
             lambda: inquirer.select(
                 message="Filter by Airing Status:",
                 choices=[
-                    {"name": "Any Status", "value": None},
-                    {"name": "Currently Airing", "value": "airing"},
-                    {"name": "Finished Airing", "value": "complete"},
-                    {"name": "Upcoming", "value": "upcoming"},
+                    {"name": "All Statuses (No filter applied)", "value": None},
+                    {"name": "Finished Airing (Completed broadcasts & released media)", "value": "complete"},
+                    {"name": "Currently Airing (Active seasonal broadcasts)", "value": "airing"},
+                    {"name": "Upcoming (Unreleased & announced series)", "value": "upcoming"},
                 ],
-                style=self.show_name_style,
+                style=self.show_selection_style,
                 mandatory=True,
             ).execute(),
             exit_code=1,
@@ -77,7 +77,7 @@ class AnimeMenuView(BaseMenuView):
             lambda: inquirer.select(
                 message="Select Show:",
                 choices=anime_choices,
-                style=self.show_name_style,
+                style=self.show_selection_style,
                 instruction=f"[Use arrows to navigate] Items: {anime_count}/{anime_count}",
                 long_instruction="To cancel this prompt press, ctrl+c",
             ).execute()
@@ -101,7 +101,7 @@ class AnimeMenuView(BaseMenuView):
 
         return selected_page
 
-    def prompt_anime_checkpoint(self) -> str:
+    def prompt_anime_post_checkpoint(self) -> str:
         """Prompts the user for their next action after displaying the Anime episode manifest.
 
         Allows the user to proceed with file renaming, revert to selecting an alternate
@@ -117,13 +117,13 @@ class AnimeMenuView(BaseMenuView):
                     {"name": "Exit Metatag", "value": "exit"},
                 ],
                 instruction="(Use  arrows to navigate)",
-                style=self.checkpoint_style,
+                style=self.post_manifest_action_style,
             ).execute(),
             exit_code=0,
         )
 
         if next_action == "exit":
-            cprint(colors.RED, "Operation cancelled.")
+            cprint(colors.YELLOW_BOLD, "Exited Metatag")
             sys.exit(1)
 
         return next_action

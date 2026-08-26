@@ -10,121 +10,142 @@ from InquirerPy.utils import InquirerPyStyle
 
 media_selection_style = InquirerPyStyle(
     {
-        "questionmark": "#45F705 bold",  # Signature green for the main indicator
-        "question": "#ffffff bold",  # Crisp white for main question text
-        "pointer": "#45F705 bold",  # Sharp green cursor pointer
-        "highlighted": "#45F705 bold",  # Active item lights up bright green
-        "choice": "#d1d5db",  # Soft light grey for unselected options
-        "selected": "#45F705 bold",  # Vibrant green confirmation state
-        "answer": "#45F705 bold",  # Selected value display after submit
-        "answered_question": "#9ca3af",  # Muted grey for completed prompt
-        "instruction": "#FFB700 italic",  # Amber italic hint for navigation tips
-        "long_instruction": "#6b7280",  # Muted secondary instructions (Ctrl+C hint)
+        "questionmark": "#FF692A bold",
+        "question": "#ffffff bold",
+        "pointer": "#21BCFF bold",
+        "highlighted": "#21BCFF bold",
+        "choice": "#21BCFF bold",
+        "selected": "#21BCFF bold",
+        "answer": "#21BCFF bold",
+        "answered_question": "#9ca3af",
+        "instruction": "#21BCFF italic",
+        "long_instruction": "#6b7280",
     }
 )
 
-show_name_style = InquirerPyStyle(
+show_title_style = InquirerPyStyle(
     {
-        "questionmark": "#45F705 bold",
+        "questionmark": "#FF692A bold",
         "question": "#ffffff bold",
-        "input": "#45F705 bold",  # Highlight user text entry in signature green
-        "validator": "#ff6b6b bold",  # Crisp coral-red for empty input validation error
+        "input": "#05DF72 bold",
+        "validator": "#ff6b6b bold",
+        "answer": "#21BCFF bold",
         "answered_question": "#9ca3af",
     }
 )
 
 show_selection_style = InquirerPyStyle(
     {
-        "questionmark": "#45F705 bold",
+        "questionmark": "#FF692A bold",
         "question": "#ffffff bold",
-        "pointer": "#45F705 bold",
-        "highlighted": "#45F705 bold",
-        "choice": "#d1d5db",
-        "instruction": "#38bdf8 italic",  # Sky blue for navigation instructions
-        "answered_question": "#9ca3af",
+        "pointer": "#21BCFF bold",
+        "highlighted": "#21BCFF bold",
+        "choice": "#21BCFF bold",
+        "selected": "#21BCFF bold",
+        "answer": "#21BCFF bold",
+        "answered_question": "#9CA3AF",
+        "instruction": "#21BCFF italic",
+        "long_instruction": "#6B7280",
     }
 )
 
-season_selection_style = InquirerPyStyle(
+post_manifest_action_style = InquirerPyStyle(
     {
-        "questionmark": "#45F705 bold",
+        "questionmark": "#FF692A bold",
         "question": "#ffffff bold",
-        "pointer": "#38bdf8 bold",  # Sky-blue pointer to visually distinguish season select
-        "highlighted": "#38bdf8 bold",
-        "choice": "#d1d5db",
-        "instruction": "#38bdf8 italic",
-        "answered_question": "#9ca3af",
-    }
-)
-
-checkpoint_style = InquirerPyStyle(
-    {
-        "questionmark": "#45F705 bold",
-        "question": "#ffffff bold",
-        "pointer": "#45F705 bold",
-        "highlighted": "#45F705 bold",
-        "choice": "#d1d5db",
-        "instruction": "#FFB700 italic",  # Amber hint text for next action guidance
-        "answered_question": "#9ca3af",
+        "pointer": "#21BCFF bold",
+        "highlighted": "#21BCFF bold",
+        "choice": "#21BCFF bold",
+        "selected": "#21BCFF bold",
+        "answer": "#FFB93B bold",
+        "answered_question": "#9CA3AF",
+        "instruction": "#21BCFF italic",
+        "long_instruction": "#6B7280",
     }
 )
 
 directory_selection_style = InquirerPyStyle(
     {
-        "questionmark": "#10b981 bold",  # Emerald green for filesystem prompts
+        "questionmark": "#FF692A bold",
         "question": "#ffffff bold",
-        "input": "#10b981 bold",  # Highlight active path entry in emerald green
-        "pointer": "#10b981 bold",  # Folder completion autocomplete cursor
-        "validator": "#ff6b6b bold",  # Path error warning color
-        "answered_question": "#9ca3af",
+        "pointer": "#21BCFF bold",
+        "highlighted": "#21BCFF bold",
+        "choice": "#21BCFF bold",
+        "selected": "#21BCFF bold",
+        "answer": "#FFB93B bold",
+        "answered_question": "#9CA3AF",
+        "input": "#FFB93B",
+        "instruction": "#F54927 italic",
+        "long_instruction": "#6B7280",
     }
 )
 
 filetype_selection_style = InquirerPyStyle(
     {
-        "questionmark": "#45F705 bold",
+        "questionmark": "#FF692A bold",
         "question": "#ffffff bold",
-        "pointer": "#45F705 bold",
-        "highlighted": "#45F705 bold",
-        "choice": "#d1d5db",
-        "instruction": "#808080 italic",
-        "answered_question": "#9ca3af",
+        "pointer": "#21BCFF bold",
+        "highlighted": "#21BCFF bold",
+        "choice": "#21BCFF bold",
+        "selected": "#21BCFF bold",
+        "answer": "#FFB93B bold",
+        "answered_question": "#9CA3AF",
+        "input": "#FFB93B",
+        "instruction": "#F54927 italic",
+        "long_instruction": "#6B7280",
     }
 )
 
-checkbox_selection_style = InquirerPyStyle(
+confirm_prompt_style = InquirerPyStyle(
     {
-        "questionmark": "#06b6d4 bold",  # Cyan theme for batch selection state
-        "question": "#ffffff bold",
-        "pointer": "#06b6d4 bold",  # Cursor indicator
-        "checkbox": "#06b6d4 bold",  # Unchecked [ ] visual key
-        "enabled": "#45F705 bold",  # Checked [*] items in bright green
-        "highlighted": "#06b6d4 bold",  # Active row under cursor
-        "choice": "#9ca3af",
-        "instruction": "#06b6d4 italic",  # Hints: [Space] Toggle, [Enter] Confirm
-        "answered_question": "#9ca3af",
-    }
-)
-
-confirmation_style = InquirerPyStyle(
-    {
-        "questionmark": "#facc15 bold",  # Vivid yellow for critical action confirmation
-        "question": "#ffffff bold",
-        "answer": "#45F705 bold",
-        "answered_question": "#9ca3af",
-        "instruction": "#facc15 italic",
+        "questionmark": "#FF692A bold",
+        "question": "#FFB93B bold",
+        "pointer": "#21BCFF bold",
+        "highlighted": "#21BCFF bold",
+        "choice": "#21BCFF bold",
+        "selected": "#21BCFF bold",
+        "answer": "#FFB93B bold",
+        "answered_question": "#9CA3AF",
+        "input": "#FFB93B",
+        "instruction": "#21BCFF italic",
+        "long_instruction": "#6B7280",
     }
 )
 
 post_rename_style = InquirerPyStyle(
     {
-        "questionmark": "#45F705 bold",
-        "question": "#ffffff bold",
-        "pointer": "#45F705 bold",
-        "highlighted": "#45F705 bold",
-        "choice": "#d1d5db",
-        "instruction": "#FFB700 italic",
-        "answered_question": "#9ca3af",
+        "questionmark": "#FF692A bold",
+        "question": "#FFB93B bold",
+        "pointer": "#21BCFF bold",
+        "highlighted": "#21BCFF bold",
+        "choice": "#21BCFF bold",
+        "selected": "#FFB93B bold",
+        "mark": "#FFB93B bold",
+        "answertag": "#FFB93B bold",
+        "answered_question": "#9CA3AF",
+        "checkbox": "#FFB93B",
+        "checkbox_off": "#ffffff",
+        "instruction": "#21BCFF italic",
+        "long_instruction": "#6B7280",
+    }
+)
+
+checkbox_selection_style = InquirerPyStyle(
+    {
+        "questionmark": "#FF692A bold",
+        "question": "#FFB93B bold",
+        "pointer": "#21BCFF bold",
+        "highlighted": "#FFB93B bold",
+        "choice": "#FFB93B bold",
+        "selected": "#FFB93B bold",
+        "enabled": "#FFB93B bold",
+        "disabled": "#9CA3AF",
+        "answertag": "#FFB93B bold",
+        "answered_question": "#9CA3AF",
+        "checkbox": "#FFB93B",
+        "checkbox_off": "#ffffff",
+        "instruction": "#21BCFF italic",
+        "long_instruction": "#6B7280",
     }
 )
 
@@ -146,18 +167,43 @@ class colors:  # noqa: N801
         RESET (str): ANSI code to reset formatting back to default.
     """
 
-    WHITE = "\033[37m"
-    GREEN = "\033[92m"
-    ERROR = "\033[93m"
-    BLUE = "\033[34m"
-    YELLOW = "\033[33m"
-    MAGENTA = "\033[35m"
-    CYAN = "\033[36m"
+    # Regular colors
     RED = "\033[31m"
-    GREY = "\033[90m"
-    END = "\x1b[0m"
-    BOLD = "\033[1m"
-    UNDERLINE = "\033[4m"
+    GREEN = "\033[32m"
+    YELLOW = "\033[33m"
+    BLUE = "\033[34m"
+    PURPLE = "\033[35m"
+    CYAN = "\033[36m"
+    WHITE = "\033[37m"
+    BLUE = "\033[38;2;33;188;255m"
+    YELLOW_1 = "\033[38;2;255;185;59m"
+    MINT_GREEN = "\033[38;2;123;241;168m"
+
+    # Bold colors
+    RED_BOLD = "\033[1;31m"
+    GREEN_BOLD = "\033[1;32m"
+    YELLOW_BOLD = "\033[1;33m"
+    BLUE_BOLD = "\033[1;34m"
+    PURPLE_BOLD = "\033[1;35m"
+    CYAN_BOLD = "\033[1;36m"
+    WHITE_BOLD = "\033[1;37m"
+    BLUE_BOLD = "\033[1;38;2;33;188;255m"
+    YELLOW_BOLD_1 = "\033[1;38;2;255;185;59m"
+    MINT_GREEN_BOLD = "\033[1;38;2;123;241;168m"
+
+    # Underline
+    RED_UNDERLINE = "\033[4;31m"
+    GREEN_UNDERLINE = "\033[4;32m"
+    YELLOW_UNDERLINE = "\033[4;33m"
+    BLUE_UNDERLINE = "\033[4;34m"
+    PURPLE_UNDERLINE = "\033[4;35m"
+    CYAN_UNDERLINE = "\033[4;36m"
+    WHITE_UNDERLINE = "\033[4;37m"
+    BLUE_BOLD_UNDERLINE = "\033[4;38;2;33;188;255m"
+    YELLOW_BOLD_UNDERLINE_1 = "\033[4;38;2;255;185;59m"
+    MINT_GREEN_BOLD_UNDERLINE = "\033[4;38;2;123;241;168m"
+
+    # Reset
     RESET = "\033[0m"
 
 
@@ -180,7 +226,7 @@ def color(*values: Any, sep: str = "") -> str:
         >>> color(colors.GREEN, "Success", colors.BOLD, " Fully Loaded")
         '\x033[92mSuccess\033[1m Fully Loaded\x1b[0m'
     """
-    return sep.join(map(str, values)) + colors.END
+    return sep.join(map(str, values)) + colors.RESET
 
 
 def cinput(*prompt: Any, input_color: str = "") -> str:
@@ -205,7 +251,7 @@ def cinput(*prompt: Any, input_color: str = "") -> str:
         ... )
     """
     inp = input(color(*prompt) + input_color)
-    print(colors.END, end="")
+    print(colors.RESET, end="")
     return inp
 
 

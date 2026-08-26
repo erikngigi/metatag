@@ -20,8 +20,8 @@ if TYPE_CHECKING:
     from metatag.views.tv_menu import TVMenuView
 
 
-class APISelectorController:
-    """Main entry point for routing and setting up API metadata selections."""
+class WorkflowRouterController:
+    """Main entry point for routing user media choices to individual sub-controllers."""
 
     def __init__(
         self,
@@ -37,24 +37,23 @@ class APISelectorController:
         self.tvmaze = tvmaze
         self.tvmenu = tvmenu
 
-    def run(self, cli_args: Any) -> None:
-        """High-level orchestrator that determines media routing tracks."""
-        # Prompt for media type ("tv_series", "anime_series", or "exit")
+    def dispatch(self, cli_args: Any) -> None:
+        """Prompts for media type and dispatches control to the target workflow."""
         media_type = self.base_menu.prompt_media_type()
 
         if media_type == "tv_series":
-            self._handle_tv_routing(cli_args)
+            self.dispatch_tv_workflow(cli_args)
         elif media_type == "anime_series":
-            self._handle_anime_routing(cli_args)
+            self.dispatch_anime_workflow(cli_args)
         elif media_type == "exit":
             cprint(colors.YELLOW, "Exiting menu routing track...")
 
-    def _handle_tv_routing(self, cli_args: Any) -> None:
+    def dispatch_tv_workflow(self, cli_args: Any) -> None:
         """Explicitly handles the initialization and execution lifecycle of TV Series."""
         tv_controller = TVSelectorController(self.base_menu, self.tvmaze, self.tvmenu)
         tv_controller.execute(cli_args)
 
-    def _handle_anime_routing(self, cli_args: Any) -> None:
+    def dispatch_anime_workflow(self, cli_args: Any) -> None:
         """Explicitly handles the initialization and execution lifecycle of Anime Series."""
         anime_controller = AnimeSelectorController(self.anime_menu, self.base_menu, self.tenrai)
         anime_controller.execute(cli_args)

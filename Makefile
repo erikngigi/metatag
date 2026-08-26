@@ -1,9 +1,9 @@
 # Variables
 APP_ENTRY := -m metatag.main
 
-.PHONY: all help list install-python sync run run-dry test build clean install
+.PHONY: all help list install-python sync clear run run-preview test build clean run-dry
 
-all: sync test build
+all: sync clean build
 
 help: ## Prints help for targets with comments
 	@cat $(MAKEFILE_LIST) | grep -E '^[a-zA-Z_-]+:.*?## .*$$' | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
@@ -17,10 +17,13 @@ install-python: ## Install a specific python version (usage: make install-python
 sync: ## Sync dependencies and set up the virtual environment
 	uv sync
 
-run: ## Run the interactive CLI application
+clear: ## Clear terminal screen
+	clear
+
+run: clear ## Run the interactive CLI application
 	uv run python $(APP_ENTRY) --interactive
 
-run-dry: ## Run the interactive CLI application in dry-run mode (-d)
+run-preview: clear ## Run the interactive CLI application in preview mode (--interactive --preview)
 	uv run python $(APP_ENTRY) --interactive --preview
 
 test: ## Run tests (placeholder)
@@ -28,7 +31,7 @@ test: ## Run tests (placeholder)
 
 build: ## Build standalone binary executable using PyInstaller
 	uv run pyinstaller --onefile --name metatag metatag/main.py
-	ln -sf ~/CodeStudio/Personal/Python/Metatag/development/dist/metatag ~/.local/bin/metatag
+	ln -sf $(shell pwd)/dist/metatag ~/.local/bin/metatag
 
 clean: ## Remove build artifacts, cache files, and dist folders
 	rm -rf dist/ build/ *.egg-info .pytest_cache .uv_cache

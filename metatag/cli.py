@@ -5,13 +5,21 @@ Configures terminal flags for interactive wizard launch, dry-run mode, and versi
 
 import argparse
 import sys
+from typing import Protocol
 
 import argcomplete
 
 from metatag import __version__
 
 
-def parse_arguments() -> argparse.Namespace:
+class CLIArgs(Protocol):
+    """Static type interface for parsed CLI arguments."""
+
+    interactive: bool
+    preview: bool
+
+
+def parse_arguments() -> CLIArgs:
     """
     Configures the CLI argument schema and parses terminal inputs.
     """
