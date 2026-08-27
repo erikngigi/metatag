@@ -80,14 +80,8 @@ class TVSelectorController:
                 next_action = self.tvmenu.prompt_tv_post_manifest_action()
 
                 if next_action == "rename":
-                    # selected_episode_manifest = self.base_menu.prompt_episode_selection(season_episode_names)
-
-                    # if not selected_episode_manifest:
-                    #     cprint(colors.YELLOW, "No remote episodes selected. Aborting rename phase.")
-                    #     continue
-
                     dir_controller = DirectoryController(self.base_menu)
-                    target_dir = dir_controller.run()
+                    target_dir = dir_controller.run(media_type="tv_series")
 
                     file_controller = FileSelectorController(self.base_menu, target_dir)
                     files_to_process = file_controller.run()

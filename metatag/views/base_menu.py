@@ -54,14 +54,15 @@ class BaseMenuView:
         """Clears the Linux terminal screen securely using subprocess."""
         subprocess.run(["clear"])
 
-    def prompt_media_type(self) -> str:
-        """Select between TV Show and Anime."""
-        media_selection = self._safe_prompt(
+    def prompt_main_menu(self) -> str:
+        """Prompts for the primary action track: media renaming, universal metadata editing, or exit."""
+        main_menu = self._safe_prompt(
             lambda: inquirer.select(
-                message="Select the media type to process:",
+                message="Select action track to process:",
                 choices=[
-                    {"name": "Anime", "value": "anime_series"},
-                    {"name": "TV Series", "value": "tv_series"},
+                    {"name": "Rename Anime Series", "value": "anime_series"},
+                    {"name": "Rename TV Show Series", "value": "tv_series"},
+                    {"name": "Edit Embedded File Metadata (MKV / MP4)", "value": "metadata_edit"},
                     {"name": "Exit", "value": "exit"},
                 ],
                 instruction="(Use  arrows to navigate)",
@@ -71,22 +72,21 @@ class BaseMenuView:
             exit_code=0,
         )
 
-        if media_selection == "exit":
+        if main_menu == "exit":
             cprint(colors.YELLOW, "Exited Metatag")
             sys.exit(0)
 
-        return str(media_selection)
+        return str(main_menu)
 
-    def prompt_target_directory(self, default_path: str) -> str:
-        """Prompts the user to pick a source directory with live tab-completions."""
+    def prompt_target_directory(self, choices: list[str]) -> str:
+        """Prompts the user to pick a target directory from a pre-scanned list."""
         return str(
             self._safe_prompt(
-                lambda: inquirer.filepath(
-                    message="Enter target folder path:",
+                lambda: inquirer.fuzzy(
+                    message="Select target directory:",
+                    choices=choices,
                     style=self.directory_selection_style,
-                    default=default_path,
-                    only_directories=True,
-                    validate=PathValidator(is_dir=True, message="Target directory path does not exist."),
+                    match_exact=False,
                 ).execute(),
                 exit_code=1,
             )
@@ -190,7 +190,7 @@ class BaseMenuView:
                 disabled_symbol="󰋙",
                 choices=[{"name": f, "value": f, "enabled": True} for f in local_files],
                 instruction="[Space] Toggle, [Enter] Confirm",
-                transformer=lambda result: f"{len(result)} file(s) selected",
+                transformer=lambda result: f"  Selected files: [{len(result)}]",
                 style=self.checkbox_selection_style,
             ).execute(),
             exit_code=0,

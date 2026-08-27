@@ -108,7 +108,7 @@ class AnimeSelectorController:
                         continue
 
                     dir_controller = DirectoryController(self.base_menu)
-                    target_dir = dir_controller.run()
+                    target_dir = dir_controller.run(media_type="anime_series")
 
                     file_controller = FileSelectorController(self.base_menu, target_dir)
                     files_to_process = file_controller.run()
@@ -119,10 +119,10 @@ class AnimeSelectorController:
 
                     if files_to_process:
                         # Explicit --dry-run flag: preview only, no confirmation needed
-                        if getattr(args, "dry_run", False):
-                            anime_renamer.rename_anime_episodes(anime_name=selected_anime.title_english, dry_run=True)
+                        if getattr(args, "preview", False):
+                            anime_renamer.rename_anime_episodes(anime_name=selected_anime.title_english, preview=True)
                         else:
-                            anime_renamer.rename_anime_episodes(anime_name=selected_anime.title_english, dry_run=True)
+                            anime_renamer.rename_anime_episodes(anime_name=selected_anime.title_english, preview=True)
 
                             proceed = self.base_menu.prompt_confirmation(
                                 message="Do you want to proceed with renaming these files?",
@@ -134,7 +134,7 @@ class AnimeSelectorController:
                                 return
 
                             anime_renamer.rename_anime_episodes(
-                                anime_name=selected_anime.title_english, dry_run=args.dry_run
+                                anime_name=selected_anime.title_english, preview=args.preview
                             )
                         return
 

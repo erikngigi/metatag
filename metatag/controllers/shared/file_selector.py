@@ -48,13 +48,12 @@ class FileSelectorController:
             cprint(colors.YELLOW, f"No matching {file_type_choice} files discovered.")
         else:
             cprint(
-                colors.YELLOW_BOLD_UNDERLINE_1,
-                f"  Files in directory: {target_dir_items} episodes found",
+                colors.MINT_GREEN_BOLD,
+                f"\n  Files in directory: {target_dir_items} episodes found",
             )
-            # for index, file in enumerate(selected_files, start=1):
-            #     cprint(f" {index:02d}. {file}")
-            for file in selected_files:
-                cprint(colors.YELLOW_BOLD_1, f"  {file}")
+            for index, file in enumerate(selected_files, start=1):
+                cprint(colors.YELLOW_BOLD_1, f"  [{index:02d}/{target_dir_items:02d}] {file}")
+            cprint()
 
             confirmed_files = self.base_menu.prompt_local_file_selection(selected_files)
 
