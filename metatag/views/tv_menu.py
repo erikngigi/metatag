@@ -24,10 +24,11 @@ class TVMenuView(BaseMenuView):
         """Get the TV show name from the user via text prompt."""
         show_name: str = self._safe_prompt(
             lambda: inquirer.text(
+                instruction="(Ctrl+C to cancel)",
+                invalid_message="TV show name cannot be empty.",
                 message="Enter TV series name to search:",
                 style=self.show_title_style,
                 validate=lambda text: len(text.strip()) > 0,
-                invalid_message="TV show name cannot be empty.",
             ).execute()
         )
         return show_name.strip()
@@ -36,7 +37,11 @@ class TVMenuView(BaseMenuView):
         """Display pre-formatted show choices directly to the user."""
         selected_show: TVShowSchema = self._safe_prompt(
             lambda: inquirer.select(
-                message="Select matching TV series:", choices=show_choices, style=self.show_selection_style
+                instruction="(Use arrow keys to navigate and Enter to select)",
+                long_instruction="To cancel this prompt press Ctrl+C",
+                message="Select matching TV series:",
+                choices=show_choices,
+                style=self.show_selection_style,
             ).execute()
         )
 
@@ -46,11 +51,31 @@ class TVMenuView(BaseMenuView):
         """Display pre-formatted season choices directly to the user."""
         selected_seasons: TVSeasonSchema = self._safe_prompt(
             lambda: inquirer.select(
-                message="Select season to map:", choices=season_choices, style=self.show_selection_style
+                instruction="Use arrow keys to navigate, Space to toggle and Enter to select.",
+                long_instruction="To cancel this prompt press Ctrl+C",
+                message="Select season to map:",
+                choices=season_choices,
+                style=self.show_selection_style,
             ).execute()
         )
 
         return selected_seasons
+
+    def print_tv_episode_manifest(
+        self,
+        show_name: str,
+        season_identifier: int,
+        episode_list: list[str],
+    ) -> None:
+        """Prints an episode manifest framed with top header and bottom footer rules."""
+        header_title = f"\n  {show_name} — Season {season_identifier}\n"
+
+        cprint(colors.BLUE_BOLD, header_title)
+
+        # Episode Items (Clean, left-aligned without side padding or side borders)
+        for name in episode_list:
+            cprint(colors.BLUE_BOLD, f"  {name}")
+        cprint()
 
     def prompt_tv_post_manifest_action(self) -> str:
         """Prompts for the next step following the display of a TV show's episode manifest.
@@ -64,6 +89,8 @@ class TVMenuView(BaseMenuView):
         """
         next_action: str = self._safe_prompt(
             lambda: inquirer.select(
+                instruction="(Use arrow keys to navigate and Enter to select)",
+                long_instruction="To cancel this prompt press Ctrl+C",
                 message="Select next step:",
                 choices=[
                     {"name": "Proceed to File Selection & Renaming", "value": "rename"},
@@ -71,7 +98,6 @@ class TVMenuView(BaseMenuView):
                     {"name": "Search for Another TV Series", "value": "search_again"},
                     {"name": "Exit Metatag", "value": "exit"},
                 ],
-                instruction="(Use ↑/↓ arrows to navigate)",
                 style=self.post_manifest_action_style,
             ).execute(),
             exit_code=0,

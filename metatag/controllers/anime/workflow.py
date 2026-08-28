@@ -95,7 +95,7 @@ class AnimeSelectorController:
                     selected_anime_episode_names.append(label)
 
                 # self.base_menu.print_episodes(selected_anime_episode_names)
-                self.base_menu.print_anime_episode_manifest(selected_anime.title, selected_anime_episode_names)
+                self.anime_menu.print_anime_episode_manifest(selected_anime.title, selected_anime_episode_names)
 
                 # Step 9: Loop control
                 next_action = self.anime_menu.prompt_anime_post_checkpoint()

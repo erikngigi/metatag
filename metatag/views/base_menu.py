@@ -58,6 +58,9 @@ class BaseMenuView:
         """Prompts for the primary action track: media renaming, universal metadata editing, or exit."""
         main_menu = self._safe_prompt(
             lambda: inquirer.select(
+                pointer="",
+                instruction="Use arrow keys to navigate and Enter to select.",
+                long_instruction="To cancel this prompt press ctrl+c",
                 message="Select action track to process:",
                 choices=[
                     {"name": "Rename Anime Series", "value": "anime_series"},
@@ -65,8 +68,6 @@ class BaseMenuView:
                     {"name": "Edit Embedded File Metadata (MKV / MP4)", "value": "metadata_edit"},
                     {"name": "Exit", "value": "exit"},
                 ],
-                instruction="(Use  arrows to navigate)",
-                long_instruction="To cancel this prompt press ctrl+c",
                 style=self.media_selection_style,
             ).execute(),
             exit_code=0,
@@ -83,7 +84,10 @@ class BaseMenuView:
         return str(
             self._safe_prompt(
                 lambda: inquirer.fuzzy(
-                    message="Select target directory:",
+                    pointer="",
+                    instruction="Use arrow keys to navigate and Enter to select.",
+                    long_instruction="To cancel this prompt press ctrl+c",
+                    message="Select the target directory:",
                     choices=choices,
                     style=self.directory_selection_style,
                     match_exact=False,
@@ -96,12 +100,14 @@ class BaseMenuView:
         """Select filetype you want to rename (e.g., subtitles, videos)"""
         rename_filetype_selection: str = self._safe_prompt(
             lambda: inquirer.select(
+                pointer="",
+                instruction="Use arrow keys to navigate and Enter to select.",
+                long_instruction="To cancel this prompt press ctrl+c",
                 message="Filter target file extension(s):",
                 choices=[
-                    {"name": "mkv/mp4", "value": "video"},
-                    {"name": "srt", "value": "subtitle"},
+                    {"name": "Video Files (.mkv, .mp4)", "value": "video"},
+                    {"name": "Subtitle Files (.srt)", "value": "subtitle"},
                 ],
-                long_instruction="To cancel this prompt press, ctrl+c",
                 style=self.filetype_selection_style,
             ).execute()
         )
@@ -112,11 +118,13 @@ class BaseMenuView:
         """Prompts the user to multi-select which remote episodes match their local files."""
         episode_manifest_selection: list[str] = self._safe_prompt(
             lambda: inquirer.checkbox(
+                pointer="",
+                instruction="Use arrow keys to navigate, Space to toggle and Enter to select.",
+                long_instruction="To cancel this prompt press ctrl+c",
                 message="Select the episodes you want to match (Space to toggle, Enter to confirm)",
-                enabled_symbol="󰱒 ",
-                disabled_symbol=" ",
+                enabled_symbol="󰋘 ",
+                disabled_symbol="󰋙 ",
                 choices=[{"name": ep, "value": ep, "enabled": True} for ep in episode_manifest],
-                instruction="[Space] Toggle, [Enter] Confirm",
                 transformer=lambda result: "",
                 style=self.checkbox_selection_style,
             ).execute(),
@@ -127,49 +135,25 @@ class BaseMenuView:
 
     def prompt_confirmation(self, message: str, default: bool) -> bool:
         """A generic reusable confirmation prompt that returns a boolen choice."""
-        return bool(
-            self._safe_prompt(
-                lambda: inquirer.confirm(message=message, default=default, style=self.confirm_prompt_style).execute()
-            )
+        prompt_confirm: bool = self._safe_prompt(
+            lambda: inquirer.confirm(
+                instruction="(y/N, Ctrl+C to cancel)",
+                message=message,
+                default=default,
+                confirm_letter="y",
+                reject_letter="N",
+                style=self.confirm_prompt_style,
+            ).execute()
         )
 
-    def print_episodes(self, episode_list: list[str]) -> None:
-        """Prints the pre-formatted episode names of the selected media type."""
-        for name in episode_list:
-            cprint(colors.CYAN_BOLD, f"{name}")
-
-    def print_tv_episode_manifest(
-        self,
-        show_name: str,
-        season_identifier: int,
-        episode_list: list[str],
-    ) -> None:
-        """Prints an episode manifest framed with top header and bottom footer rules."""
-        header_title = f"  {show_name} — Season {season_identifier}"
-
-        cprint(colors.BLUE_BOLD_UNDERLINE, header_title)
-
-        # Episode Items (Clean, left-aligned without side padding or side borders)
-        for name in episode_list:
-            cprint(colors.BLUE_BOLD, f"  {name}")
-
-    def print_anime_episode_manifest(
-        self,
-        show_name: str,
-        episode_list: list[str],
-    ) -> None:
-        """Prints an episode manifest framed with top header and bottom footer rules."""
-
-        cprint(colors.BLUE_BOLD_UNDERLINE, show_name)
-
-        # Episode Items (Clean, left-aligned without side padding or side borders)
-        for name in episode_list:
-            cprint(colors.BLUE_BOLD, f"  {name}")
+        return prompt_confirm
 
     def prompt_post_rename_options(self) -> str:
         """Prompts the user on next actions after succesful renaming process."""
         post_rename_action: str = self._safe_prompt(
             lambda: inquirer.select(
+                instruction="Use arrow keys to navigate and Enter to select.",
+                long_instruction="To cancel this prompt press ctrl+c",
                 message="Renaming process complete. Choose next action?",
                 choices=[
                     {"name": "Run Another Rename Cycle", "value": "search_again"},
@@ -185,11 +169,12 @@ class BaseMenuView:
         """Prompts the user to multi-select which local files they want to include for renaming."""
         local_file_selection: list[str] = self._safe_prompt(
             lambda: inquirer.checkbox(
+                instruction="Use arrow keys to navigate and Enter to select.",
+                long_instruction="To cancel this prompt press ctrl+c",
                 message="Select the local files you want to rename (Space to toggle, Enter to confirm)",
                 enabled_symbol="󰋘",
                 disabled_symbol="󰋙",
                 choices=[{"name": f, "value": f, "enabled": True} for f in local_files],
-                instruction="[Space] Toggle, [Enter] Confirm",
                 transformer=lambda result: f"  Selected files: [{len(result)}]",
                 style=self.checkbox_selection_style,
             ).execute(),

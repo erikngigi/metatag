@@ -26,6 +26,7 @@ class AnimeMenuView(BaseMenuView):
 
         anime_name: str = self._safe_prompt(
             lambda: inquirer.text(
+                instruction="(Ctrl+C to cancel)",
                 message="Enter anime name to search:",
                 style=self.show_title_style,
                 validate=lambda text: len(text.strip()) > 0,
@@ -36,6 +37,8 @@ class AnimeMenuView(BaseMenuView):
 
         anime_type: str = self._safe_prompt(
             lambda: inquirer.select(
+                instruction="(Use arrow keys to navigate and Enter to select)",
+                long_instruction="To cancel this prompt press Ctrl+C",
                 message="Filter by Format Type:",
                 choices=[
                     {"name": "All Formats (No filter applied)", "value": None},
@@ -51,6 +54,8 @@ class AnimeMenuView(BaseMenuView):
 
         anime_status: str = self._safe_prompt(
             lambda: inquirer.select(
+                instruction="(Use arrow keys to navigate and Enter to select)",
+                long_instruction="To cancel this prompt press Ctrl+C",
                 message="Filter by Airing Status:",
                 choices=[
                     {"name": "All Statuses (No filter applied)", "value": None},
@@ -72,14 +77,13 @@ class AnimeMenuView(BaseMenuView):
 
     def prompt_anime_selection(self, anime_choices: list[dict[str, Any]]) -> AnimeDetailsSchema:
         """Display a pre-formatted anime choices list."""
-        anime_count = len(anime_choices)
         anime_selected: AnimeDetailsSchema = self._safe_prompt(
             lambda: inquirer.select(
+                instruction="(Use arrow keys to navigate and Enter to select)",
+                long_instruction="To cancel this prompt press Ctrl+C",
                 message="Select Show:",
                 choices=anime_choices,
                 style=self.show_selection_style,
-                instruction=f"[Use arrows to navigate] Items: {anime_count}/{anime_count}",
-                long_instruction="To cancel this prompt press, ctrl+c",
             ).execute()
         )
 
@@ -92,6 +96,8 @@ class AnimeMenuView(BaseMenuView):
 
         selected_page: int = self._safe_prompt(
             lambda: inquirer.select(
+                instruction="(Use arrow keys to navigate and Enter to select)",
+                long_instruction="To cancel this prompt press Ctrl+C",
                 message="Multiple episode pages found. Select a metadata chunk page to view:",
                 choices=page_choices,
                 default=1,
@@ -101,6 +107,19 @@ class AnimeMenuView(BaseMenuView):
 
         return selected_page
 
+    def print_anime_episode_manifest(
+        self,
+        show_name: str,
+        episode_list: list[str],
+    ) -> None:
+        """Prints an episode manifest framed with top header and bottom footer rules."""
+
+        cprint(colors.BLUE_BOLD_UNDERLINE, f"\n{show_name}\n")
+
+        # Episode Items (Clean, left-aligned without side padding or side borders)
+        for name in episode_list:
+            cprint(colors.BLUE_BOLD, f"  {name}")
+
     def prompt_anime_post_checkpoint(self) -> str:
         """Prompts the user for their next action after displaying the Anime episode manifest.
 
@@ -109,6 +128,8 @@ class AnimeMenuView(BaseMenuView):
         """
         next_action: str = self._safe_prompt(
             lambda: inquirer.select(
+                instruction="(Use arrow keys to navigate and Enter to select)",
+                long_instruction="To cancel this prompt press Ctrl+C",
                 message="Choose next action:",
                 choices=[
                     {"name": "Proceed to File Selection & Renaming", "value": "rename"},
@@ -116,7 +137,6 @@ class AnimeMenuView(BaseMenuView):
                     {"name": "Search for Another Anime Series", "value": "search_again"},
                     {"name": "Exit Metatag", "value": "exit"},
                 ],
-                instruction="(Use  arrows to navigate)",
                 style=self.post_manifest_action_style,
             ).execute(),
             exit_code=0,
@@ -124,6 +144,6 @@ class AnimeMenuView(BaseMenuView):
 
         if next_action == "exit":
             cprint(colors.YELLOW_BOLD, "Exited Metatag")
-            sys.exit(1)
+            sys.exit(0)
 
         return next_action

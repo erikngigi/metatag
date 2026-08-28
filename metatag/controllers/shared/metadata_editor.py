@@ -53,8 +53,8 @@ class MetadataController:
             return
 
         cprint(
-            colors.YELLOW_BOLD_UNDERLINE_1,
-            f"\nUpdating internal metadata titles for {len(confirmed_files)} file(s)...",
+            colors.MINT_GREEN_BOLD,
+            "\nUpdating title metadata for the files:",
         )
 
         success_count = 0

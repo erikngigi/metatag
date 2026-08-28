@@ -46,7 +46,7 @@ class DirectoryController:
             target_dir: str = self.base_menu.prompt_target_directory(available_directories)
 
             is_confirmed = self.base_menu.prompt_confirmation(
-                message=f"Proceed with target directory '{target_dir}'?", default=True
+                message=f"Proceed with target directory: '{target_dir}'?", default=False
             )
 
             if is_confirmed:

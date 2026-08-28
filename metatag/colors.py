@@ -27,10 +27,14 @@ show_title_style = InquirerPyStyle(
     {
         "questionmark": "#FF692A bold",
         "question": "#ffffff bold",
-        "input": "#05DF72 bold",
-        "validator": "#ff6b6b bold",
+        "pointer": "#21BCFF bold",
+        "highlighted": "#21BCFF bold",
+        "choice": "#21BCFF bold",
+        "selected": "#21BCFF bold",
         "answer": "#21BCFF bold",
         "answered_question": "#9ca3af",
+        "instruction": "#21BCFF italic",
+        "long_instruction": "#7BF1A8 bold",
     }
 )
 
@@ -75,7 +79,7 @@ directory_selection_style = InquirerPyStyle(
         "answer": "#FFB93B bold",
         "answered_question": "#9CA3AF",
         "input": "#FFB93B",
-        "instruction": "#F54927 italic",
+        "instruction": "#21BCFF italic",
         "long_instruction": "#6B7280",
     }
 )
@@ -91,7 +95,7 @@ filetype_selection_style = InquirerPyStyle(
         "answer": "#FFB93B bold",
         "answered_question": "#9CA3AF",
         "input": "#FFB93B",
-        "instruction": "#F54927 italic",
+        "instruction": "#21BCFF italic",
         "long_instruction": "#6B7280",
     }
 )
