@@ -6,8 +6,12 @@ specifically tailored for standard western television formats.
 """
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from metatag.colors import colors, cprint
+
+if TYPE_CHECKING:
+    from metatag.views.base_menu import BaseMenuView
 
 
 class TVRenamerController:
@@ -15,7 +19,10 @@ class TVRenamerController:
     for renaming local video files based on TVMaze season manifest data.
     """
 
-    def __init__(self, target_dir: str, local_files: list[str], episode_manifest: list[str]) -> None:
+    def __init__(
+        self, base_menu: BaseMenuView, target_dir: str, local_files: list[str], episode_manifest: list[str]
+    ) -> None:
+        self.base_menu = base_menu
         self.target_dir = Path(target_dir)
         self.local_files = [Path(f) for f in local_files]
         self.episode_manifest = episode_manifest
@@ -24,13 +31,32 @@ class TVRenamerController:
         """Pairs local files with remote TV episode manifest and executes the
         renaming operation.
         """
-        action_label = "DRY RUN" if preview else "RENAME"
-        cprint(
-            colors.CYAN,
-            f"  [{action_label}] {show_name} Season {season} {'[previewing changes only]' if preview else '[applying changes]'}",
+        # 1. Prompt user to select/confirm episode matching selection
+        selected_episode_manifest: list[str] = self.base_menu.prompt_episode_selection(
+            episode_manifest=self.episode_manifest
         )
 
-        for local_path, remote_name in zip(self.local_files, self.episode_manifest):
+        if not selected_episode_manifest:
+            cprint(colors.YELLOW, "\n  No episodes selected for renaming.")
+            return
+
+        # Ask for confirmation before performing any operations if not in preview mode
+        if not preview:
+            confirmed = self.base_menu.prompt_confirmation(
+                message="Are you sure you want to proceed with renaming?",
+                default=False,
+            )
+        if not confirmed:
+            cprint(colors.YELLOW, "\n  Renaming aborted by user. No files were changed.")
+            return
+
+        action_label = "  [Preview Mode Only]" if preview else "  [Rename Mode]"
+        cprint(
+            colors.YELLOW_BOLD_1,
+            f"{action_label}",
+        )
+
+        for local_path, remote_name in zip(self.local_files, selected_episode_manifest):
             file_extension = local_path.suffix
 
             # Formulate the clean, new destination path
@@ -42,7 +68,7 @@ class TVRenamerController:
                     colors.YELLOW_BOLD_1,
                     f"  {local_path.name}",
                     colors.WHITE_BOLD,
-                    "  ",
+                    "   ",
                     colors.MINT_GREEN_BOLD,
                     f"{new_filename}",
                 )
@@ -54,7 +80,7 @@ class TVRenamerController:
                         colors.YELLOW_BOLD_1,
                         f"  {local_path.name}",
                         colors.WHITE_BOLD,
-                        "  ",
+                        "   ",
                         colors.MINT_GREEN_BOLD,
                         f"{new_filename}",
                     )

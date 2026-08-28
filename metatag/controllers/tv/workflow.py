@@ -79,39 +79,48 @@ class TVSelectorController:
 
                 if next_action == "rename":
                     dir_controller = DirectoryController(self.base_menu)
-                    target_dir = dir_controller.run(media_type="tv_series")
+                    target_dir = dir_controller.run(selected_show.name, selected_season.number, media_type="tv_series")
 
                     file_controller = FileSelectorController(self.base_menu, target_dir)
                     files_to_process = file_controller.run()
 
+                    if not files_to_process:
+                        cprint(colors.YELLOW, "\n  No files selected for processing. Returning to season menu...\n")
+                        continue
+
                     tv_renamer = TVRenamerController(
-                        target_dir=target_dir, local_files=files_to_process, episode_manifest=season_episode_names
+                        self.base_menu,
+                        target_dir=target_dir,
+                        local_files=files_to_process,
+                        episode_manifest=season_episode_names,
                     )
 
-                    if files_to_process:
-                        # Explicit --dry-run flag: preview only, no confirmation needed
-                        if getattr(cli_args, "preview", False):
-                            tv_renamer.rename_tv_episodes(
-                                show_name=selected_show.name, season=selected_season.number, preview=True
-                            )
-                        else:
-                            tv_renamer.rename_tv_episodes(
-                                show_name=selected_show.name, season=selected_season.number, preview=True
-                            )
+                    is_preview = getattr(cli_args, "preview", False)
 
-                            proceed = self.base_menu.prompt_confirmation(
-                                message="Do you want to proceed with renaming these files?",
-                                default=False,
-                            )
-
-                            if not proceed:
-                                cprint(colors.YELLOW, "Renaming sequence aborted by user. No files were changed.")
-                                return
-
-                            tv_renamer.rename_tv_episodes(
-                                show_name=selected_show.name, season=selected_season.number, preview=cli_args.preview
-                            )
+                    if is_preview:
+                        tv_renamer.rename_tv_episodes(
+                            show_name=selected_show.name,
+                            season=selected_season.number,
+                            preview=True,
+                        )
                         return
+
+                    # Standard Flow: Prompt confirmation first, then run non-preview rename once confirmed
+                    proceed = self.base_menu.prompt_confirmation(
+                        message="Do you want to proceed with renaming these files?",
+                        default=False,
+                    )
+
+                    if not proceed:
+                        cprint(colors.YELLOW, "Renaming sequence aborted by user. No files were changed.")
+                        return
+
+                    tv_renamer.rename_tv_episodes(
+                        show_name=selected_show.name,
+                        season=selected_season.number,
+                        preview=False,
+                    )
+                    return
 
                 elif next_action == "alternate_season":
                     self.base_menu.clear_screen()

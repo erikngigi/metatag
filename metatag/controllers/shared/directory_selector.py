@@ -28,7 +28,7 @@ class DirectoryController:
 
         return dirs
 
-    def run(self, media_type: str) -> str:
+    def run(self, show_name: str, season_identifier: int, media_type: str) -> str:
         """Runs the interactive path selection wizard loop."""
 
         if media_type == "tv_series":
@@ -40,6 +40,7 @@ class DirectoryController:
 
         # Scan all directories and subdirectories under base_start_dir
         cprint(colors.CYAN, "Scanning target directories...")
+        cprint(colors.YELLOW_BOLD_1, f"Selected target: {show_name} Season {season_identifier}")
         available_directories = self._get_all_directories(base_start_dir)
 
         while True:

@@ -119,7 +119,7 @@ class BaseMenuView:
         episode_manifest_selection: list[str] = self._safe_prompt(
             lambda: inquirer.checkbox(
                 pointer="",
-                instruction="Use arrow keys to navigate, Space to toggle and Enter to select.",
+                instruction="Navigate [ ], Toggle [󱁐], Toggle All True [Ctrl+A], Toggle All False [Ctrl+A]",
                 long_instruction="To cancel this prompt press ctrl+c",
                 message="Select the episodes you want to match (Space to toggle, Enter to confirm)",
                 enabled_symbol="󰋘 ",
@@ -169,7 +169,7 @@ class BaseMenuView:
         """Prompts the user to multi-select which local files they want to include for renaming."""
         local_file_selection: list[str] = self._safe_prompt(
             lambda: inquirer.checkbox(
-                instruction="Use arrow keys to navigate and Enter to select.",
+                instruction="Navigate [ ], Toggle [󱁐], Toggle All True [Ctrl+A], Toggle All False [Ctrl+A]",
                 long_instruction="To cancel this prompt press ctrl+c",
                 message="Select the local files you want to rename (Space to toggle, Enter to confirm)",
                 enabled_symbol="󰋘",
