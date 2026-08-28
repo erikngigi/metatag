@@ -29,10 +29,11 @@ class MetadataController:
             if not bak_files:
                 return
 
-            cprint(colors.CYAN, f"\nCleaning up {len(bak_files)} temporary backup file(s)...")
+            cprint(colors.CYAN, f"\n  Cleaning up {len(bak_files)} temporary backup file(s)...\n")
             for bak in bak_files:
                 os.remove(os.path.join(target_dir, bak))
                 cprint(colors.YELLOW, f"  Removed: {bak}")
+                cprint()
         except OSError as e:
             cprint(colors.RED, f"Failed during .bak file cleanup: {e}")
 
@@ -47,14 +48,24 @@ class MetadataController:
 
         # 2. Select local files
         file_selector = FileSelectorController(self.base_menu, target_dir)
-        confirmed_files: List[str] = file_selector.run()
 
-        if not confirmed_files:
-            return
+        while True:
+            confirmed_files: List[str] = file_selector.run()
+
+            if not confirmed_files:
+                return
+
+            is_confirmed = self.base_menu.prompt_confirmation(
+                message=f"Proceed with metadata updates for {len(confirmed_files)} files(s)?",
+                default=False,
+            )
+
+            if is_confirmed:
+                break
 
         cprint(
             colors.MINT_GREEN_BOLD,
-            "\nUpdating title metadata for the files:",
+            "\n  Updating title metadata for the files:\n",
         )
 
         success_count = 0
@@ -101,7 +112,7 @@ class MetadataController:
 
         cprint(
             colors.MINT_GREEN_BOLD,
-            f"\nFinished metadata updates. Successfully updated {success_count}/{len(confirmed_files)} files.",
+            f"\n  Finished metadata updates. Successfully updated {success_count}/{len(confirmed_files)} files.\n",
         )
 
         # 4. Clean up .bak files if MP4 files were processed
