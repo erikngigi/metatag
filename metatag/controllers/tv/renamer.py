@@ -31,32 +31,13 @@ class TVRenamerController:
         """Pairs local files with remote TV episode manifest and executes the
         renaming operation.
         """
-        # 1. Prompt user to select/confirm episode matching selection
-        selected_episode_manifest: list[str] = self.base_menu.prompt_episode_selection(
-            episode_manifest=self.episode_manifest
-        )
-
-        if not selected_episode_manifest:
-            cprint(colors.YELLOW, "\n  No episodes selected for renaming.")
-            return
-
-        # Ask for confirmation before performing any operations if not in preview mode
-        if not preview:
-            confirmed = self.base_menu.prompt_confirmation(
-                message="Are you sure you want to proceed with renaming?",
-                default=False,
-            )
-        if not confirmed:
-            cprint(colors.YELLOW, "\n  Renaming aborted by user. No files were changed.")
-            return
-
-        action_label = "  [Preview Mode Only]" if preview else "  [Rename Mode]"
+        action_label = "DRY RUN" if preview else "RENAME"
         cprint(
-            colors.YELLOW_BOLD_1,
-            f"{action_label}",
+            colors.CYAN,
+            f"  [{action_label}] {show_name} Season {season} {'[previewing changes only]' if preview else '[applying changes]'}",
         )
 
-        for local_path, remote_name in zip(self.local_files, selected_episode_manifest):
+        for local_path, remote_name in zip(self.local_files, self.episode_manifest):
             file_extension = local_path.suffix
 
             # Formulate the clean, new destination path
@@ -68,9 +49,9 @@ class TVRenamerController:
                     colors.YELLOW_BOLD_1,
                     f"  {local_path.name}",
                     colors.WHITE_BOLD,
-                    "   ",
+                    "  ",
                     colors.MINT_GREEN_BOLD,
-                    f"{new_filename}",
+                    f"  {new_filename}",
                 )
             else:
                 try:
@@ -80,7 +61,7 @@ class TVRenamerController:
                         colors.YELLOW_BOLD_1,
                         f"  {local_path.name}",
                         colors.WHITE_BOLD,
-                        "   ",
+                        "  ",
                         colors.MINT_GREEN_BOLD,
                         f"{new_filename}",
                     )

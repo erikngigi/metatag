@@ -41,7 +41,7 @@ class MetadataController:
         """Runs the interactive metadata editing workflow."""
         # 1. Select directory
         dir_controller = DirectoryController(self.base_menu)
-        target_dir = dir_controller.run(media_type=media_type)
+        target_dir = dir_controller.select_directory_for_metadata_embedding(media_type=media_type)
 
         if not target_dir:
             return
@@ -112,7 +112,7 @@ class MetadataController:
 
         cprint(
             colors.MINT_GREEN_BOLD,
-            f"\n  Finished metadata updates. Successfully updated {success_count}/{len(confirmed_files)} files.\n",
+            f"\n  Finished metadata updates. Successfully updated {success_count}/{len(confirmed_files)} files.",
         )
 
         # 4. Clean up .bak files if MP4 files were processed

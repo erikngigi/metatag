@@ -114,7 +114,7 @@ class AnimeMenuView(BaseMenuView):
     ) -> None:
         """Prints an episode manifest framed with top header and bottom footer rules."""
 
-        cprint(colors.BLUE_BOLD_UNDERLINE, f"\n{show_name}\n")
+        cprint(colors.BLUE_BOLD, f"\n  {show_name}\n")
 
         # Episode Items (Clean, left-aligned without side padding or side borders)
         for name in episode_list:
