@@ -37,7 +37,16 @@ class TVRenamerController:
             f"  [{action_label}] {show_name} Season {season} {'[previewing changes only]' if preview else '[applying changes]'}",
         )
 
-        for local_path, remote_name in zip(self.local_files, self.episode_manifest):
+        pair_count = min(len(self.local_files), len(self.episode_manifest))
+        if len(self.local_files) != len(self.episode_manifest):
+            cprint(
+                colors.RED_BOLD,
+                f"  Warning: {len(self.local_files)} local file(s) vs {len(self.episode_manifest)} episode(s) "
+                f"selected. Only the first {pair_count} pair(s) will be matched -- go back and re-select "
+                "so the counts match if that's not intended.",
+            )
+
+        for position, (local_path, remote_name) in enumerate(zip(self.local_files, self.episode_manifest), start=1):
             file_extension = local_path.suffix
 
             # Formulate the clean, new destination path
@@ -46,10 +55,12 @@ class TVRenamerController:
 
             if preview:
                 cprint(
+                    colors.WHITE_BOLD,
+                    f"  [{position:02d}/{pair_count:02d}]",
                     colors.YELLOW_BOLD_1,
                     f"  {local_path.name}",
                     colors.WHITE_BOLD,
-                    "  ",
+                    "  ",
                     colors.MINT_GREEN_BOLD,
                     f"  {new_filename}",
                 )
@@ -58,10 +69,12 @@ class TVRenamerController:
                     source_path = local_path if local_path.is_absolute() else self.target_dir / local_path.name
                     source_path.rename(destination_path)
                     cprint(
+                        colors.WHITE_BOLD,
+                        f"  [{position:02d}/{pair_count:02d}]",
                         colors.YELLOW_BOLD_1,
                         f"  {local_path.name}",
                         colors.WHITE_BOLD,
-                        "  ",
+                        "  ",
                         colors.MINT_GREEN_BOLD,
                         f"{new_filename}",
                     )

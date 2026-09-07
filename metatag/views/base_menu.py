@@ -96,6 +96,28 @@ class BaseMenuView:
             )
         )
 
+    def prompt_directory_path(self, start_path: str, message: str = "Select the target directory:") -> str:
+        """Lets the user freely navigate the filesystem to pick a directory.
+
+        Opens with `start_path` pre-filled but fully editable — the user can
+        tab-complete deeper into subdirectories, backspace it out entirely, and
+        type an unrelated root (e.g. clear '/storage/' and type '/home/') to
+        browse from there instead.
+        """
+        selected_path: str = self._safe_prompt(
+            lambda: inquirer.filepath(
+                message=message,
+                default=start_path,
+                only_directories=True,
+                validate=PathValidator(is_dir=True, message="Input is not a valid directory"),
+                instruction="(Tab to complete, Ctrl+C to cancel)",
+                style=self.directory_selection_style,
+            ).execute(),
+            exit_code=1,
+        )
+
+        return selected_path
+
     def prompt_filetype_rename(self) -> str:
         """Select filetype you want to rename (e.g., subtitles, videos)"""
         rename_filetype_selection: str = self._safe_prompt(

@@ -1,6 +1,5 @@
 """Directory Configuration and Traversal Presenter Controller."""
 
-import os
 from typing import TYPE_CHECKING
 
 from metatag.colors import colors, cprint
@@ -15,102 +14,60 @@ class DirectoryController:
     def __init__(self, base_menu: "BaseMenuView") -> None:
         self.base_menu = base_menu
 
-    def _get_all_directories(self, base_path: str) -> list[str]:
-        """Recursively scans and gathers only leaf subdirectories (directories with no subdirectories)."""
-        leaf_dirs: list[str] = []
+    def _navigate_and_confirm(self, start_path: str, message: str) -> str:
+        """Lets the user freely navigate to a directory, then confirms before returning it.
 
-        for root, subdirs, _ in os.walk(base_path):
-            # If subdirs is empty, 'root' is a terminal (leaf) directory
-            if not subdirs:
-                leaf_dirs.append(root)
+        `start_path` only seeds the prompt -- the user can tab-complete deeper,
+        or clear it and type an entirely different root (e.g. swap '/storage/'
+        for '/home/') before landing on a final choice.
+        """
+        while True:
+            target_dir = self.base_menu.prompt_directory_path(start_path=start_path, message=message)
 
-        leaf_dirs.sort()
-        return leaf_dirs
+            is_confirmed = self.base_menu.prompt_confirmation(message=f"Proceed with: '{target_dir}'?", default=False)
+
+            if is_confirmed:
+                return target_dir
+
+            cprint(colors.YELLOW, "Select alternate directory...")
+            # Resume navigation from wherever they last landed, not back at the original root.
+            start_path = target_dir
 
     def select_directory_for_metadata_embedding(self, media_type: str) -> str:
-        """Launches the directory selection wizard for tagging and embedding metadata.
+        """Launches the directory navigation wizard for tagging and embedding metadata.
 
         Args:
-            show_name: The target show or series name.
-            season_identifier: The season number or identifier.
-            media_type: Category of media determining root storage path
-                ('tv_series', 'anime_series', etc.).
+            media_type: Category of media determining the starting root path
+                ('tv_series', 'anime_series', etc.). The user can navigate away
+                from this starting point to anywhere on the filesystem.
 
         Returns:
             str: The absolute path of the target directory selected for metadata embedding.
         """
         if media_type == "tv_series":
-            base_start_dir = os.path.expanduser("/storage/Tv-Shows/Western")
+            base_start_dir = "/storage/Tv-Shows/Western/"
         elif media_type == "anime_series":
-            base_start_dir = os.path.expanduser("/storage/Tv-Shows/Anime")
+            base_start_dir = "/storage/Tv-Shows/Anime/"
         else:
-            base_start_dir = os.path.expanduser("/storage/Tv-Shows")
+            base_start_dir = "/storage/Tv-Shows/"
 
-        cprint(colors.CYAN, "Scanning target directories for metadata embedding...")
-        available_directories = self._get_all_directories(base_start_dir)
-
-        while True:
-            target_dir: str = self.base_menu.prompt_target_directory(available_directories)
-
-            is_confirmed = self.base_menu.prompt_confirmation(
-                message=f"Proceed with metadata embedding in: '{target_dir}'?", default=False
-            )
-
-            if is_confirmed:
-                break
-
-            cprint(colors.YELLOW, "Select alternate directory...")
-
-        return target_dir
+        cprint(colors.CYAN, "Navigate to the target directory for metadata embedding...")
+        return self._navigate_and_confirm(base_start_dir, "Select the target directory:")
 
     def select_directory_tv_renaming(self, show_name: str, season_identifier: int) -> str:
-        """Launches the directory selection wizard for TV Show batch file renaming.
+        """Launches the directory navigation wizard for TV Show batch file renaming.
 
         Returns:
             str: The absolute path of the target directory selected for file renaming.
         """
-
-        base_start_dir = os.path.expanduser("/storage/Tv-Shows/Western")
-
-        cprint(colors.CYAN, "Scanning target directories for file renaming...")
-        available_directories = self._get_all_directories(base_start_dir)
-
-        while True:
-            target_dir: str = self.base_menu.prompt_target_directory(available_directories)
-
-            is_confirmed = self.base_menu.prompt_confirmation(
-                message=f"Proceed with file renaming in: '{target_dir}'?", default=False
-            )
-
-            if is_confirmed:
-                break
-
-            cprint(colors.YELLOW, "Select alternate directory...")
-
-        return target_dir
+        cprint(colors.CYAN, "Navigate to the target directory for file renaming...")
+        return self._navigate_and_confirm("/storage/Tv-Shows/Western/", "Select the target directory:")
 
     def select_directory_anime_renaming(self, show_name: str) -> str:
-        """Launches the directory selection wizard for Anime batch file renaming.
+        """Launches the directory navigation wizard for Anime batch file renaming.
 
         Returns:
             str: The absolute path of the target directory selected for file renaming.
         """
-
-        base_start_dir = os.path.expanduser("/storage/Tv-Shows/Anime")
-
-        cprint(colors.CYAN, "Scanning target directories for file renaming...")
-        available_directories = self._get_all_directories(base_start_dir)
-
-        while True:
-            target_dir: str = self.base_menu.prompt_target_directory(available_directories)
-
-            is_confirmed = self.base_menu.prompt_confirmation(
-                message=f"Proceed with file renaming in: '{target_dir}'?", default=False
-            )
-
-            if is_confirmed:
-                break
-
-            cprint(colors.YELLOW, "Select alternate directory...")
-
-        return target_dir
+        cprint(colors.CYAN, "Navigate to the target directory for file renaming...")
+        return self._navigate_and_confirm("/storage/Tv-Shows/Anime/", "Select the target directory:")
