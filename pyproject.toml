@@ -4,9 +4,9 @@ build-backend = "hatchling.build"
 
 [project]
 name = "Metatag"
-version = "1.1.0"
 description = "A structured, API-driven renaming engine for local media collections."
 requires-python = ">=3.14"
+dynamic = ["version"]
 dependencies = [
   "requests",
   "InquirerPy",

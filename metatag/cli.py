@@ -4,12 +4,29 @@ Configures terminal flags for interactive wizard launch, dry-run mode, and versi
 """
 
 import argparse
+import platform
 import sys
+from datetime import datetime
 from typing import Protocol
 
 import argcomplete
 
 from metatag import __version__
+
+try:
+    from metatag._build import BUILD_DATE
+except ImportError:
+    BUILD_DATE = "dev_build"
+
+
+def build_version_banner() -> str:
+    """Builds a multiline version banner."""
+    lines = [
+        f"Metatag v{__version__} Copyright (c) 2026. All Rights Reserved.",
+        f"Built date: {BUILD_DATE}",
+        f"Python version: {platform.python_version()} ({platform.system()} {platform.machine()})",
+    ]
+    return "\n".join(lines)
 
 
 class CLIArgs(Protocol):
@@ -27,6 +44,7 @@ def parse_arguments() -> CLIArgs:
         prog="metatag",
         description="A structured, API-driven renaming engine that standardizes "
         "messy TV show and Anime file collections using remote metadata databases.",
+        formatter_class=argparse.RawTextHelpFormatter,
     )
 
     parser.add_argument(
@@ -46,10 +64,10 @@ def parse_arguments() -> CLIArgs:
     )
 
     parser.add_argument(
-        "-v",
+        "-V",
         "--version",
         action="version",
-        version=f"%(prog)s {__version__}",
+        version=build_version_banner(),
         help="Show the application version and exit.",
     )
 

@@ -42,3 +42,4 @@ Thumbs.db
 build/
 dist/
 *.spec.bak
+metatag/_build.py

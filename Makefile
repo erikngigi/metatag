@@ -30,9 +30,10 @@ test: ## Run tests (placeholder)
 	@echo "No test configured yet"
 
 build: ## Build standalone binary executable using PyInstaller
+	@python3 -c "from datetime import datetime, timezone; open('metatag/_build.py', 'w').write(f'BUILD_DATE = \"{datetime.now(timezone.utc).strftime(\"%d-%m-%Y %H:%M UTC\")}\"\n')"
 	uv run pyinstaller --onefile --name metatag metatag/main.py
 	ln -sf $(shell pwd)/dist/metatag ~/.local/bin/metatag
 
 clean: ## Remove build artifacts, cache files, and dist folders
-	rm -rf dist/ build/ *.egg-info .pytest_cache .uv_cache
+	rm -rf dist/ build/ metatag/_build.py *.egg-info .pytest_cache .uv_cache
 	find . -type d -name "__pycache__" -exec rm -rf {} +
